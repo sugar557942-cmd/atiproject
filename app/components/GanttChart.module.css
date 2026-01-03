@@ -1,0 +1,196 @@
+.ganttContainer {
+    display: flex;
+    flex: 1;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    background: var(--bg-main);
+    overflow: hidden;
+    min-height: 0;
+    /* Important for flex child specific scrolling */
+}
+
+/* Control Styles */
+.navBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.navBtn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.todayBtn {
+    background: white;
+    border: 1px solid #d0d4e4;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.todayBtn:hover {
+    background: #f5f6f8;
+}
+
+.viewToggle {
+    background: #f0f2f5;
+    padding: 2px;
+    border-radius: 6px;
+    display: flex;
+    gap: 2px;
+}
+
+.toggleBtn {
+    border: none;
+    background: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #676879;
+    cursor: pointer;
+}
+
+.toggleBtn.active {
+    background: white;
+    color: #323338;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.taskList {
+    width: 250px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+}
+
+.headerCell {
+    height: 50px;
+    border-bottom: 1px solid var(--border-light);
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+}
+
+.taskNameRow {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-light);
+    padding-right: 8px;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.collapseBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-right: 4px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+}
+
+.nameText {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.timelineScroller {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: visible;
+    /* Allow vertical growth */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.timelineHeader {
+    height: 50px;
+    display: flex;
+    border-bottom: 1px solid var(--border-light);
+    position: sticky;
+    top: 0;
+    background: var(--bg-main);
+    z-index: 10;
+}
+
+.headerTimeCell {
+    border-right: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.dayNum {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.gridBody {
+    position: relative;
+}
+
+.gridLines {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100%;
+    z-index: 1;
+}
+
+.gridLine {
+    border-right: 1px solid #f0f0f0;
+    /* Very light */
+    height: 100%;
+}
+
+.barRow {
+    height: 40px;
+    position: relative;
+    border-bottom: 1px solid transparent;
+    /* Match alignment with task rows */
+    z-index: 2;
+}
+
+.bar {
+    position: absolute;
+    top: 8px;
+    height: 24px;
+    border-radius: 12px;
+    opacity: 0.9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: white;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    overflow: hidden;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.bar:hover {
+    opacity: 1;
+}

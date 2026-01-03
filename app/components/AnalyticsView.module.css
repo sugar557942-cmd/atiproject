@@ -1,0 +1,118 @@
+.container {
+    padding: 24px 32px;
+    background: #f5f7fa;
+    /* Slightly darker bg for dashboard feel */
+    height: 100%;
+    overflow-y: auto;
+    font-family: 'Inter', sans-serif;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #323338;
+    margin: 0;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+}
+
+.actionBtn,
+.actionBtnPrimary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.actionBtn {
+    background: white;
+    border: 1px solid #c3c6d4;
+    color: #323338;
+}
+
+.actionBtnPrimary {
+    background: #0073ea;
+    border: 1px solid #0073ea;
+    color: white;
+}
+
+/* Cards Grid */
+.cardsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.card {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.cardIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cardContent {
+    flex: 1;
+}
+
+.cardLabel {
+    font-size: 14px;
+    color: #676879;
+    margin-bottom: 4px;
+}
+
+.cardValue {
+    font-size: 28px;
+    font-weight: 700;
+    color: #323338;
+}
+
+/* Charts Grid */
+.chartsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.chartCard {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.chartTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #323338;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #eff0f2;
+    padding-bottom: 12px;
+}

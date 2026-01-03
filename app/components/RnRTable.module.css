@@ -1,0 +1,160 @@
+.tableContainer {
+    background: var(--bg-main);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.tableHeader {
+    display: flex;
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.colName {
+    flex: 3;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+}
+
+.colAssignee {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    gap: 8px;
+}
+
+.colRole {
+    flex: 3;
+    padding: 0 8px;
+}
+
+.colScope {
+    flex: 2;
+    padding: 0 8px;
+}
+
+.colActions {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 8px;
+    gap: 4px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-light);
+    padding: 6px 0;
+    transition: background 0.1s;
+}
+
+.row:hover {
+    background: #f7f9fc;
+}
+
+.input {
+    width: 100%;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.input:hover {
+    border-color: var(--border-color);
+    background: var(--bg-main);
+}
+
+.input:focus {
+    border-color: var(--primary-color);
+    background: var(--bg-main);
+    outline: none;
+}
+
+.rowControls {
+    display: flex;
+    align-items: center;
+    margin-right: 4px;
+}
+
+.iconBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    padding: 2px;
+}
+
+.iconBtn:hover {
+    color: var(--text-primary);
+}
+
+.avatarPlaceholder {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10px;
+    flex-shrink: 0;
+}
+
+.actionBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-placeholder);
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.actionBtn:hover {
+    background: var(--bg-hover);
+    color: var(--primary-color);
+}
+
+.delete:hover {
+    color: var(--status-stuck);
+    background: #ffe3e3;
+}
+
+.addRow {
+    padding: 8px;
+    border-top: 1px solid var(--border-light);
+}
+
+.addBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px dashed var(--border-color);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    width: 100%;
+    justify-content: center;
+}
+
+.addBtn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: #f0f7ff;
+}

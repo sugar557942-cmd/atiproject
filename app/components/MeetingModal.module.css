@@ -1,0 +1,289 @@
+/* Existing Styles */
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    width: 800px;
+    max-width: 90vw;
+    height: 85vh;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e6e9ef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.headerActions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.aiButton {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.aiButton:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.closeBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: #676879;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.row {
+    display: flex;
+    gap: 16px;
+}
+
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.label {
+    font-size: 12px;
+    color: #676879;
+    font-weight: 500;
+}
+
+.input {
+    padding: 10px;
+    border: 1px solid #c3c6d4;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #323338;
+    margin-top: 12px;
+    padding-bottom: 8px;
+}
+
+.toolbar {
+    display: flex;
+    gap: 4px;
+    padding: 8px;
+    background: #f5f6f8;
+    border: 1px solid #e6e9ef;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    align-items: center;
+}
+
+.toolBtn {
+    background: white;
+    border: 1px solid #d0d4e4;
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #323338;
+    font-size: 14px;
+}
+
+.toolBtn:hover {
+    background: #ebecf0;
+}
+
+.separator {
+    width: 1px;
+    height: 16px;
+    background: #d0d4e4;
+    margin: 0 4px;
+}
+
+.editor {
+    min-height: 200px;
+    border: 1px solid #e6e9ef;
+    border-radius: 0 0 4px 4px;
+    padding: 16px;
+    outline: none;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-y: auto;
+}
+
+.editor:focus {
+    border-color: #0073ea;
+}
+
+.textarea {
+    width: 100%;
+    border: 1px solid #e6e9ef;
+    border-radius: 6px;
+    padding: 12px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 150px;
+}
+
+.footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e6e9ef;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.saveBtn {
+    background: #0073ea;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.saveBtn:hover {
+    background: #0060b9;
+}
+
+.transcriptBox {
+    background: #f5f6f8;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #323338;
+    line-height: 1.6;
+    overflow-y: auto;
+    min-height: 200px;
+    /* max-height removed to allow full print if needed, controlled by container in modal */
+    max-height: 500px;
+}
+
+.headerBtn {
+    background: white;
+    border: 1px solid #d0d4e4;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #323338;
+}
+
+.headerBtn:hover {
+    background: #f5f6f8;
+}
+
+/* --- Print Styles --- */
+.printContainer {
+    display: none;
+    /* Hide by default on screen */
+}
+
+@media print {
+
+    /* Hide normal UI */
+    .modal,
+    .print-hide {
+        display: none !important;
+        background: none !important;
+        box-shadow: none !important;
+        width: auto !important;
+        height: auto !important;
+        position: static !important;
+        overflow: visible !important;
+        visibility: hidden !important;
+        /* Explicitly hide */
+    }
+
+    /* Update Overlay to be transparent container */
+    .overlay {
+        position: static !important;
+        background: none !important;
+        display: block !important;
+        height: auto !important;
+        width: auto !important;
+        z-index: auto !important;
+        visibility: visible !important;
+        /* Ensure overlay path is visible */
+    }
+
+    /* Show Print Container */
+    .printContainer {
+        display: block !important;
+        visibility: visible !important;
+        /* Force visibility */
+        padding: 40px;
+        font-family: 'Pretendard', sans-serif;
+        color: #000;
+        background: white;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 9999;
+    }
+
+    /* Ensure children are visible */
+    .printContainer * {
+        visibility: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}

@@ -1,0 +1,132 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal {
+    background: white;
+    width: 600px;
+    max-width: 90vw;
+    max-height: 80vh;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #e6e9ef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.count {
+    font-size: 14px;
+    color: #676879;
+    font-weight: 400;
+    background: #f5f6f8;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.closeBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: #676879;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.emptyState {
+    padding: 40px;
+    text-align: center;
+    color: #676879;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.table th {
+    text-align: left;
+    padding: 12px 16px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e6e9ef;
+    color: #676879;
+    font-weight: 500;
+    font-size: 12px;
+    position: sticky;
+    top: 0;
+}
+
+.table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f5f6f8;
+    color: #323338;
+}
+
+.nameCell {
+    font-weight: 500;
+}
+
+.statusBadge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: white;
+    background: #c4c4c4;
+}
+
+.statusBadge[data-status="Done"] {
+    background: #00c875;
+}
+
+.statusBadge[data-status="Working on it"] {
+    background: #fdab3d;
+}
+
+.statusBadge[data-status="Stuck"] {
+    background: #e2445c;
+}
+
+.linkBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #0073ea;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.linkBtn:hover {
+    background: #e5f4ff;
+}

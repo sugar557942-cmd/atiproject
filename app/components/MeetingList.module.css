@@ -1,0 +1,207 @@
+.container {
+    height: 100%;
+    overflow-y: auto;
+    padding-bottom: 32px;
+}
+
+.topBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.addBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.addBtn:hover {
+    background: var(--primary-hover);
+}
+
+.list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.card {
+    background: #fdfdfd;
+    /* Fallback */
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Pastel Variations based on child index (simulated via nth-child if possible, otherwise just random look) */
+.card:nth-child(4n+1) {
+    background: #fdf6f6;
+    border-left: 4px solid #ffb3b3;
+}
+
+/* Pastel Red */
+.card:nth-child(4n+2) {
+    background: #f6fbf6;
+    border-left: 4px solid #b3ffb3;
+}
+
+/* Pastel Green */
+.card:nth-child(4n+3) {
+    background: #f6faff;
+    border-left: 4px solid #b3d9ff;
+}
+
+/* Pastel Blue */
+.card:nth-child(4n+4) {
+    background: #fffbf0;
+    border-left: 4px solid #ffe6b3;
+}
+
+/* Pastel Yellow */
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.date {
+    font-size: 13px;
+    color: #888;
+    background: rgba(255, 255, 255, 0.6);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.mainInfo {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+    align-items: center;
+}
+
+.dateInput {
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    padding: 6px;
+    color: var(--text-secondary);
+}
+
+.titleInput {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    outline: none;
+    background: transparent;
+}
+
+.titleInput:focus {
+    border-bottom: 1px solid var(--primary-color);
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.uploadBtn {
+    background: #f0f7ff;
+    color: var(--primary-color);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.uploadBtn:hover {
+    background: #e0efff;
+}
+
+.iconBtn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+}
+
+.iconBtn:hover {
+    color: var(--text-primary);
+}
+
+.delete:hover {
+    color: var(--status-stuck);
+}
+
+.details {
+    padding: 0 var(--spacing-md) var(--spacing-md);
+    border-top: 1px solid var(--border-light);
+    padding-top: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.fieldGroup label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.fullInput,
+.textarea {
+    width: 100%;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.transcriptBox {
+    background: #f9f9f9;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    line-height: 1.6;
+    color: #444;
+}
+
+.transcriptBox strong {
+    color: var(--primary-color);
+}
