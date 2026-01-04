@@ -3,19 +3,26 @@
 import React, { useState } from 'react';
 import { useAuth } from '../store/AuthContext';
 import { Lock, User } from 'lucide-react';
+import { RegisterModal } from './RegisterModal';
 
 export function LoginView() {
     const { login } = useAuth();
     const [id, setId] = useState('');
     const [pw, setPw] = useState('');
     const [error, setError] = useState('');
+    const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (login(id, pw)) {
-            setError('');
-        } else {
-            setError('아이디 또는 비밀번호가 올바르지 않습니다.');
+        try {
+            const success = await login(id, pw);
+            if (success) {
+                setError('');
+            } else {
+                setError('아이디 또는 비밀번호가 올바르지 않습니다.');
+            }
+        } catch (err) {
+            setError('로그인 중 오류가 발생했습니다.');
         }
     };
 
@@ -97,6 +104,24 @@ export function LoginView() {
                         로그인
                     </button>
 
+                    <button
+                        type="button"
+                        onClick={() => setIsRegisterOpen(true)}
+                        style={{
+                            background: 'white',
+                            color: '#0073ea',
+                            border: '1px solid #d0d4e4',
+                            padding: '12px',
+                            borderRadius: '6px',
+                            fontSize: '16px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            marginTop: '0px'
+                        }}
+                    >
+                        A.T.I. 멤버 가입
+                    </button>
+
                     <div style={{ marginTop: '16px', fontSize: '12px', color: '#676879', textAlign: 'center', lineHeight: '1.6', background: '#f5f6f8', padding: '12px', borderRadius: '8px' }}>
                         <strong>테스트 계정 정보</strong><br />
                         <span style={{ color: '#0073ea' }}>kim / 1234</span> (관리자)<br />
@@ -104,6 +129,8 @@ export function LoginView() {
                     </div>
                 </form>
             </div>
+
+            <RegisterModal isOpen={isRegisterOpen} onClose={() => setIsRegisterOpen(false)} />
         </div>
     );
 }
