@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json({
-        users: pendingUsers.map(u => ({
+        users: pendingUsers.map((u: any) => ({
             id: u.username,
             name: u.name,
             role: u.role,
