@@ -31,9 +31,9 @@ export function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
         if (name === 'id') setIdCheckStatus('none'); // Reset check on type
     };
 
-    const handleIdCheck = () => {
+    const handleIdCheck = async () => {
         if (!formData.id.trim()) return;
-        const isAvailable = checkIdAvailability(formData.id);
+        const isAvailable = await checkIdAvailability(formData.id);
         setIdCheckStatus(isAvailable ? 'available' : 'taken');
     };
 

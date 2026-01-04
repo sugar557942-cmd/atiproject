@@ -84,8 +84,8 @@ interface ProjectContextType {
     deleteGroup: (name: string) => void; // New
     // New View Mode
     // New View Mode
-    viewMode: 'project' | 'my-work' | 'home' | 'performance' | 'certification';
-    setViewMode: (mode: 'project' | 'my-work' | 'home' | 'performance' | 'certification') => void;
+    viewMode: 'project' | 'my-work' | 'home' | 'performance' | 'certification' | 'admin-settings';
+    setViewMode: (mode: 'project' | 'my-work' | 'home' | 'performance' | 'certification' | 'admin-settings') => void;
 
     // Board Filter for Dashboard Interaction
     boardFilter: string | null;
@@ -146,7 +146,7 @@ const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
     const [projects, setProjects] = useState<Project[]>([initialProject]);
     const [activeProjectId, setActiveProjectId] = useState<string>(initialProject.id);
-    const [viewMode, setViewMode] = useState<'project' | 'my-work' | 'home' | 'performance' | 'certification'>('home'); // Default to Home
+    const [viewMode, setViewMode] = useState<'project' | 'my-work' | 'home' | 'performance' | 'certification' | 'admin-settings'>('home'); // Default to Home
     const [boardFilter, setBoardFilter] = useState<string | null>(null);
 
     const activeProject = projects.find(p => p.id === activeProjectId) || projects[0];

@@ -11,6 +11,7 @@ import { MyWorkView } from './components/MyWorkView';
 import { Menu } from 'lucide-react';
 import { PerformanceView } from './components/PerformanceView';
 import { CertificationView } from './components/CertificationView';
+import { AdminSettingsView } from './components/AdminSettingsView';
 
 function AppContent() {
     const { user } = useAuth();
@@ -60,6 +61,7 @@ function AppContent() {
                     {viewMode === 'certification' && <div style={{ overflowY: 'auto', height: '100%' }}><CertificationView /></div>}
                     {viewMode === 'my-work' && <div style={{ padding: '16px', height: '100%' }}><MyWorkView /></div>}
                     {viewMode === 'project' && <div style={{ padding: '16px', height: '100%' }}><ProjectView /></div>}
+                    {viewMode === 'admin-settings' && <div style={{ padding: '16px', height: '100%' }}><AdminSettingsView /></div>}
                 </div>
             </div>
         </main>

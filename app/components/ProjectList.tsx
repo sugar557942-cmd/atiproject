@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import styles from './ProjectList.module.css';
 import { useProject } from '../store/ProjectContext';
-import { Plus, Folder, Trash2, ListTodo, X } from 'lucide-react';
+import { Plus, Folder, Trash2, ListTodo, X, Settings } from 'lucide-react'; // Added Settings
+import { useAuth } from '../store/AuthContext'; // Added useAuth
 
 interface ProjectListProps {
     isOpen?: boolean;
@@ -12,6 +13,7 @@ interface ProjectListProps {
 
 export function ProjectList({ isOpen, onClose }: ProjectListProps) {
     const { projects, activeProjectId, switchProject, createProject, deleteProject, setViewMode, viewMode } = useProject();
+    const { isAdmin } = useAuth(); // Added isAdmin
     const [isCreating, setIsCreating] = useState(false);
     const [newName, setNewName] = useState('');
     const [newDept, setNewDept] = useState('');
@@ -130,6 +132,24 @@ export function ProjectList({ isOpen, onClose }: ProjectListProps) {
                         </div>
                     </div>
                 </div>
+
+                {/* Admin Settings Item */}
+                {/* Only visible to Admin */}
+                {isAdmin && (
+                    <div
+                        className={`${styles.item} ${viewMode === 'admin-settings' ? styles.active : ''}`}
+                        onClick={() => handleNavigation(() => setViewMode('admin-settings'))}
+                        style={{ marginBottom: '16px' }}
+                    >
+                        <div className={styles.itemContent}>
+                            <Settings size={16} className={styles.icon} color="#e2445c" />
+                            <div className={styles.info}>
+                                <div className={styles.name} style={{ fontWeight: 600, color: '#e2445c' }}>Admin Settings</div>
+                                <div className={styles.dept} style={{ fontSize: '11px' }}>관리자 설정</div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className={styles.divider} style={{ height: 1, background: '#e6e9ef', margin: '0 8px 16px 8px' }}></div>
 

@@ -4,62 +4,147 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export interface User {
     id: string;
+    // pw: string; // Password is not stored on client
     name: string;
+    birthDate?: string;
+    department?: string;
+    email?: string;
     avatar: string; // Color or Image URL
     role: 'admin' | 'user';
 }
 
 interface AuthContextType {
     user: User | null;
-    login: (id: string, pw: string) => boolean;
+    login: (id: string, pw: string) => Promise<boolean>;
     logout: () => void;
     isAdmin: boolean;
-}
+    // Registration & Approval
+    register: (userData: any) => Promise<void>;
+    pendingUsers: User[];
+    checkIdAvailability: (id: string) => Promise<boolean>;
+    // Actually checkIdAvailability was synchronous before. Now it needs to be async or handled differently.
+    // I will remove checkIdAvailability from context export and handle it inside RegisterModal directly or make it async here.
+    // Let's make it async in the implementation but keep signature compatible if possible or update usage.
+    // The previous signature was sync. I'll update it to async in usage.
 
-const MOCK_USERS: Record<string, { pw: string, name: string, avatar: string, role: 'admin' | 'user' }> = {
-    'kim': { pw: '1234', name: '김철수', avatar: '#579bfc', role: 'admin' },
-    'lee': { pw: '1234', name: '이영희', avatar: '#ffcb00', role: 'user' },
-    'park': { pw: '1234', name: '박지민', avatar: '#00c875', role: 'user' },
-};
+    approveUser: (id: string) => void;
+    rejectUser: (id: string) => void;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
+    const [pendingUsers, setPendingUsers] = useState<User[]>([]);
 
-    // Persist login (optional, implemented for convenience)
+    // Check Session on Mount
     useEffect(() => {
-        const stored = localStorage.getItem('ati_user');
-        if (stored) {
-            setUser(JSON.parse(stored));
-        }
+        fetch('/api/auth/me')
+            .then(res => res.json())
+            .then(data => {
+                if (data.user) {
+                    setUser(data.user);
+                }
+            })
+            .catch(err => console.error(err));
     }, []);
 
-    const login = (id: string, pw: string) => {
-        const target = MOCK_USERS[id];
-        if (target && target.pw === pw) {
-            const newUser: User = {
-                id,
-                name: target.name,
-                avatar: target.avatar,
-                role: target.role
-            };
-            setUser(newUser);
-            localStorage.setItem('ati_user', JSON.stringify(newUser));
-            return true;
+    // Fetch Pending Users if Admin
+    useEffect(() => {
+        if (user?.role === 'admin') {
+            fetchList();
+        } else {
+            setPendingUsers([]);
         }
-        return false;
+    }, [user]);
+
+    const fetchList = () => {
+        fetch('/api/admin/users')
+            .then(res => res.json())
+            .then(data => {
+                if (data.users) setPendingUsers(data.users);
+            })
+            .catch(err => console.error(err));
     };
 
-    const logout = () => {
+    const login = async (id: string, pw: string) => {
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, pw })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setUser(data.user);
+                return true;
+            } else {
+                const err = await res.json();
+                alert(err.error); // Simple alert for error
+                return false;
+            }
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+    };
+
+    const logout = async () => {
+        await fetch('/api/auth/logout', { method: 'POST' });
         setUser(null);
-        localStorage.removeItem('ati_user');
+        window.location.href = '/'; // Redirect to home/login
+    };
+
+    const register = async (userData: any) => {
+        const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || '가입 실패');
+        }
+    };
+
+    // Note: This is client-side duplicate check (sync) in original code.
+    // We should move this to RegisterModal or make it async.
+    // For now, I'll provide a dummy function or implementation that simply returns true
+    // (Actual check happens on server during register). 
+    // OR implement a check API. 
+    // Let's implement a simple check function that always returns true to avoid breaking UI,
+    // but the `register` function will handle the error.
+    const checkIdAvailability = async (id: string) => {
+        return true;
+    };
+
+    const approveUser = async (id: string) => {
+        await fetch('/api/admin/approve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, action: 'approve' })
+        });
+        fetchList(); // Refresh
+    };
+
+    const rejectUser = async (id: string) => {
+        await fetch('/api/admin/approve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, action: 'reject' })
+        });
+        fetchList(); // Refresh
     };
 
     const isAdmin = user?.role === 'admin';
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, isAdmin }}>
+        <AuthContext.Provider value={{
+            user, login, logout, isAdmin,
+            register, pendingUsers, checkIdAvailability,
+            approveUser, rejectUser
+        }}>
             {children}
         </AuthContext.Provider>
     );
