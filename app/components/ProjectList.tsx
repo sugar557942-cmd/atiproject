@@ -13,17 +13,17 @@ interface ProjectListProps {
 
 export function ProjectList({ isOpen, onClose }: ProjectListProps) {
     const { projects, activeProjectId, switchProject, createProject, deleteProject, setViewMode, viewMode } = useProject();
-    const { isAdmin } = useAuth(); // Added isAdmin
+    const { isAdmin, departments } = useAuth(); // Added departments
     const [isCreating, setIsCreating] = useState(false);
 
     // Form State
     const [newName, setNewName] = useState('');
-    const [newDept, setNewDept] = useState('제품 디자인팀'); // Default
+    const [newDept, setNewDept] = useState(''); // Default empty
     const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
     const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
     const [category, setCategory] = useState('내부'); // Default: Internal
 
-    const DEPARTMENTS = ['제품 디자인팀', '개발팀', '기획팀', '마케팅팀', '인사팀'];
+
     const CATEGORIES = [
         { value: 'Internal', label: '내부' },
         { value: 'Government Support', label: '정부지원사업' },
@@ -37,12 +37,14 @@ export function ProjectList({ isOpen, onClose }: ProjectListProps) {
 
             // Reset
             setNewName('');
-            setNewDept('제품 디자인팀');
+            setNewDept('');
             setStartDate(new Date().toISOString().split('T')[0]);
             setEndDate(new Date().toISOString().split('T')[0]);
             setCategory('Internal');
 
             setIsCreating(false);
+        } else {
+            if (!newDept) alert('부서를 선택해주세요.');
         }
     };
 
@@ -86,9 +88,14 @@ export function ProjectList({ isOpen, onClose }: ProjectListProps) {
                         onChange={e => setNewDept(e.target.value)}
                         className={styles.input}
                     >
-                        {DEPARTMENTS.map(dept => (
-                            <option key={dept} value={dept}>{dept}</option>
-                        ))}
+                        <option value="">부서 선택</option>
+                        {departments.length === 0 ? (
+                            <option disabled>등록된 부서가 없습니다</option>
+                        ) : (
+                            departments.map(dept => (
+                                <option key={dept} value={dept}>{dept}</option>
+                            ))
+                        )}
                     </select>
 
                     {/* Dates */}

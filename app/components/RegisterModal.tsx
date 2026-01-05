@@ -8,7 +8,7 @@ interface RegisterModalProps {
 }
 
 export function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
-    const { checkIdAvailability, register } = useAuth();
+    const { checkIdAvailability, register, departments } = useAuth(); // Added departments
 
     const [formData, setFormData] = useState({
         name: '',
@@ -106,11 +106,13 @@ export function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
                         <label style={labelStyle}>부서</label>
                         <select name="department" value={formData.department} onChange={handleChange} style={inputStyle}>
                             <option value="">부서 선택</option>
-                            <option value="Product">Product</option>
-                            <option value="UX">UX / Design</option>
-                            <option value="Dev">Development</option>
-                            <option value="Marketing">Marketing</option>
-                            <option value="HR">HR</option>
+                            {departments.length === 0 ? (
+                                <option disabled>등록된 부서가 없습니다 (관리자에게 문의)</option>
+                            ) : (
+                                departments.map(dept => (
+                                    <option key={dept} value={dept}>{dept}</option>
+                                ))
+                            )}
                         </select>
                     </div>
 

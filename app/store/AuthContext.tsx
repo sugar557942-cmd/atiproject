@@ -30,6 +30,10 @@ interface AuthContextType {
     approveUser: (id: string) => void;
     rejectUser: (id: string) => void;
     updateProfile: (data: Partial<User>) => void;
+    // Dynamic Departments
+    departments: string[];
+    addDepartment: (name: string) => void;
+    deleteDepartment: (name: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,6 +41,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [pendingUsers, setPendingUsers] = useState<User[]>([]);
+
+    // Departments State - Initially Empty as requested
+    const [departments, setDepartments] = useState<string[]>([]);
+
+    const addDepartment = (name: string) => {
+        setDepartments(prev => {
+            if (prev.includes(name)) return prev;
+            return [...prev, name];
+        });
+    };
+
+    const deleteDepartment = (name: string) => {
+        setDepartments(prev => prev.filter(d => d !== name));
+    };
 
     // Check Session on Mount
     useEffect(() => {
@@ -145,7 +163,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         <AuthContext.Provider value={{
             user, login, logout, isAdmin,
             register, pendingUsers, checkIdAvailability,
-            approveUser, rejectUser, updateProfile
+            approveUser, rejectUser, updateProfile,
+            departments, addDepartment, deleteDepartment
         }}>
             {children}
         </AuthContext.Provider>
