@@ -22,6 +22,7 @@ model User {
   status      String   @default("PENDING") // 'PENDING' | 'APPROVED' | 'REJECTED'
   avatar      String?
   createdAt   DateTime @default(now())
+  projectMembers ProjectMember[]
 }
 
 model Department {
