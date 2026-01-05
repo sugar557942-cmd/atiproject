@@ -32,8 +32,7 @@ interface AuthContextType {
     updateProfile: (data: Partial<User>) => void;
     // Dynamic Departments
     departments: string[];
-    addDepartment: (name: string) => void;
-    deleteDepartment: (name: string) => void;
+    refreshDepartments: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,22 +41,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [pendingUsers, setPendingUsers] = useState<User[]>([]);
 
-    // Departments State - Initially Empty as requested
+    // Departments State
     const [departments, setDepartments] = useState<string[]>([]);
 
-    const addDepartment = (name: string) => {
-        setDepartments(prev => {
-            if (prev.includes(name)) return prev;
-            return [...prev, name];
-        });
+    const fetchDepartments = () => {
+        fetch('/api/admin/departments')
+            .then(res => res.json())
+            .then(data => {
+                if (data.departments) {
+                    setDepartments(data.departments.map((d: any) => d.name));
+                }
+            })
+            .catch(err => console.error(err));
     };
 
-    const deleteDepartment = (name: string) => {
-        setDepartments(prev => prev.filter(d => d !== name));
-    };
-
-    // Check Session on Mount
+    // Check Session & Departments on Mount
     useEffect(() => {
+        // Session
         fetch('/api/auth/me')
             .then(res => res.json())
             .then(data => {
@@ -66,6 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 }
             })
             .catch(err => console.error(err));
+
+        // Departments (Public)
+        fetchDepartments();
     }, []);
 
     // Fetch Pending Users if Admin
@@ -164,7 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             user, login, logout, isAdmin,
             register, pendingUsers, checkIdAvailability,
             approveUser, rejectUser, updateProfile,
-            departments, addDepartment, deleteDepartment
+            departments, refreshDepartments: fetchDepartments
         }}>
             {children}
         </AuthContext.Provider>
