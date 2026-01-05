@@ -92,21 +92,29 @@ export function ProjectList({ isOpen, onClose }: ProjectListProps) {
                     </select>
 
                     {/* Dates */}
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                        <input
-                            type="date"
-                            value={startDate}
-                            onChange={e => setStartDate(e.target.value)}
-                            className={styles.input}
-                            style={{ flex: 1 }}
-                        />
-                        <input
-                            type="date"
-                            value={endDate}
-                            onChange={e => setEndDate(e.target.value)}
-                            className={styles.input}
-                            style={{ flex: 1 }}
-                        />
+
+
+
+                    <div style={{ marginBottom: '8px' }}>
+                        <span style={{ fontSize: '12px', color: '#666', marginBottom: '4px', display: 'block' }}>프로젝트 기간</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={e => setStartDate(e.target.value)}
+                                className={styles.input}
+                                style={{ margin: 0 }}
+                                aria-label="Start Date"
+                            />
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={e => setEndDate(e.target.value)}
+                                className={styles.input}
+                                style={{ margin: 0 }}
+                                aria-label="End Date"
+                            />
+                        </div>
                     </div>
 
                     {/* Category Dropdown */}
