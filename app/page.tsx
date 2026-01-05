@@ -8,10 +8,10 @@ import { AuthProvider, useAuth } from './store/AuthContext';
 import { LoginView } from './components/LoginView';
 import { HomeDashboard } from './components/HomeDashboard';
 import { MyWorkView } from './components/MyWorkView';
-import { Menu } from 'lucide-react';
 import { PerformanceView } from './components/PerformanceView';
 import { CertificationView } from './components/CertificationView';
 import { AdminSettingsView } from './components/AdminSettingsView';
+import { MobileTabBar } from './components/MobileTabBar';
 
 function AppContent() {
     const { user } = useAuth();
@@ -35,27 +35,27 @@ function AppContent() {
             <ProjectList isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
             <div style={{ flex: 1, padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                {/* Mobile Header (Hamburger) */}
+                {/* Mobile Header (Hamburger) - Optional if we strictly use TabBar, but helpful for Title */}
                 <div style={{
-                    display: 'none', // scalable via Media query but doing inline for quick win 
+                    display: 'none',
                     alignItems: 'center',
                     padding: '12px 16px',
                     background: 'white',
-                    borderBottom: '1px solid #e6e9ef'
+                    borderBottom: '1px solid #e6e9ef',
+                    justifyContent: 'center' // Center title
                 }} className="mobile-header">
-                    <button onClick={() => setIsSidebarOpen(true)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
-                        <Menu size={24} color="#323338" />
-                    </button>
-                    <span style={{ marginLeft: '12px', fontWeight: 'bold' }}>ATI Project</span>
+                    <span style={{ fontWeight: 'bold', fontSize: '16px' }}>ATI Project</span>
                 </div>
                 {/* Add simple style block for generic mobile header visibility */}
                 <style jsx>{`
                     @media (max-width: 768px) {
                         .mobile-header { display: flex !important; }
+                        /* Add padding bottom to content for TabBar */
+                        .content-area { padding-bottom: 60px !important; }
                     }
                 `}</style>
 
-                <div style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="content-area" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                     {viewMode === 'home' && <HomeDashboard />}
                     {viewMode === 'performance' && <div style={{ overflowY: 'auto', height: '100%' }}><PerformanceView /></div>}
                     {viewMode === 'certification' && <div style={{ overflowY: 'auto', height: '100%' }}><CertificationView /></div>}
@@ -64,6 +64,7 @@ function AppContent() {
                     {viewMode === 'admin-settings' && <div style={{ padding: '16px', height: '100%' }}><AdminSettingsView /></div>}
                 </div>
             </div>
+            <MobileTabBar onOpenMenu={() => setIsSidebarOpen(true)} />
         </main>
     );
 }

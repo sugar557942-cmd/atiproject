@@ -19,7 +19,7 @@ export async function GET(request: Request) {
         where: { username: payload.id as string }
     });
 
-    if (!user) {
+    if (!user || user.status !== 'APPROVED') {
         return NextResponse.json({ user: null });
     }
 

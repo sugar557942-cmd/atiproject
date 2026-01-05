@@ -130,3 +130,18 @@
 .linkBtn:hover {
     background: #e5f4ff;
 }
+
+@media (max-width: 768px) {
+    .modal {
+        width: 100%;
+        height: 100%;
+        max-width: 100vw;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .table th,
+    .table td {
+        padding: 8px 12px;
+    }
+}
