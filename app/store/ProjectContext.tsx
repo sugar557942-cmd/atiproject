@@ -143,240 +143,259 @@ const initialProject: Project = {
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
+import { useAuth } from './AuthContext'; // Added import
+
+// ... types ...
+
+// ... (keep interfaces)
+
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
-    const [projects, setProjects] = useState<Project[]>([initialProject]);
-    const [activeProjectId, setActiveProjectId] = useState<string>(initialProject.id);
+    const { user } = useAuth(); // Added user
+    const [projects, setProjects] = useState<Project[]>([]);
+    const [activeProjectId, setActiveProjectId] = useState<string>('');
     const [viewMode, setViewMode] = useState<'project' | 'my-work' | 'home' | 'performance' | 'certification' | 'admin-settings'>('home'); // Default to Home
     const [boardFilter, setBoardFilter] = useState<string | null>(null);
 
-    const activeProject = projects.find(p => p.id === activeProjectId) || projects[0];
+    // Fetch Projects
+    const refreshProjects = async () => {
+        try {
+            const res = await fetch('/api/projects');
+            if (res.ok) {
+                const data = await res.json();
+                // Map Backend Groups Object to String Array if needed
+                // Backend: groups: { name: string }[] -> Frontend: groups: string[]
+                const mapped = data.map((p: any) => ({
+                    ...p,
+                    groups: p.groups ? p.groups.map((g: any) => g.name) : ['할 일', '완료됨'],
+                    // Ensure rnrItems and meetings are arrays
+                    rnrItems: p.rnrItems || [],
+                    meetings: p.meetings || [],
+                    members: p.members || []
+                }));
+                setProjects(mapped);
 
-    const createProject = (name: string, department: string, startDate: string, endDate: string, category: string) => {
-        // Find current user (mock: kim / u1) to set as Manager
-        const currentUser: Member = { id: 'u1', name: '김철수', role: 'Project Manager', projectRole: 'manager', avatar: '#579bfc', email: 'kim@ati.com' };
+                // Set active if not set
+                if (!activeProjectId && mapped.length > 0) {
+                    setActiveProjectId(mapped[0].id);
+                }
+            } else {
+                console.error('Failed to fetch projects');
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
 
-        const newProject: Project = {
-            id: uuidv4(),
-            name,
-            description: '',
-            department,
-            status: 'Planning', // Initial status
-            startDate,
-            endDate,
-            category: category as any,
-            groups: ['할 일'],
-            rnrItems: [],
-            meetings: [],
-            members: [currentUser] // Creator is manager
-        };
-        setProjects(prev => [...prev, newProject]);
-        setActiveProjectId(newProject.id);
+    // Initial Fetch
+    React.useEffect(() => {
+        if (user) refreshProjects();
+    }, [user]);
+
+    // Filter Projects based on Role
+    const visibleProjects = React.useMemo(() => {
+        if (!user) return []; // No user, no projects
+        if (projects.length === 0) return [];
+        if (user.role === 'admin') return projects; // Admin sees all
+        // Member sees only projects they are in
+        return projects.filter(p => p.members.some(m => m.id === user.id));
+    }, [user, projects]);
+
+    // Auto-switch if active project is not visible
+    React.useEffect(() => {
+        if (visibleProjects.length === 0) {
+            if (activeProjectId) setActiveProjectId('');
+        } else if (!visibleProjects.find(p => p.id === activeProjectId)) {
+            setActiveProjectId(visibleProjects[0].id);
+        }
+    }, [visibleProjects, activeProjectId]);
+
+    const activeProject = visibleProjects.find(p => p.id === activeProjectId) || visibleProjects[0];
+
+    const createProject = async (name: string, department: string, startDate: string, endDate: string, category: string) => {
+        if (!user) return;
+        try {
+            const res = await fetch('/api/projects', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, department, startDate, endDate, category })
+            });
+            if (res.ok) {
+                const newProject = await res.json();
+                await refreshProjects();
+                setActiveProjectId(newProject.id);
+            }
+        } catch (e) {
+            console.error(e);
+            alert('프로젝트 생성 실패');
+        }
     };
 
     const switchProject = (id: string) => {
-        if (projects.some(p => p.id === id)) {
+        if (visibleProjects.some(p => p.id === id)) {
             setActiveProjectId(id);
         }
     };
 
-    const deleteProject = (id: string) => {
-        if (projects.length <= 1) return; // Prevent deleting last project
-        setProjects(prev => prev.filter(p => p.id !== id));
-        if (activeProjectId === id) {
-            setActiveProjectId(projects.find(p => p.id !== id)?.id || projects[0].id);
+    const deleteProject = async (id: string) => {
+        if (!confirm('정말 삭제하시겠습니까?')) return;
+        try {
+            const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                await refreshProjects();
+            } else {
+                alert('삭제 실패 (권한이 없거나 오류)');
+            }
+        } catch (e) {
+            console.error(e);
         }
     };
 
-    const updateProjectInfo = (info: Partial<Project>) => {
-        setProjects(prev => prev.map(p =>
-            p.id === activeProjectId ? { ...p, ...info } : p
-        ));
+    const updateProjectInfo = async (info: Partial<Project>) => {
+        if (!activeProjectId) return;
+        try {
+            await fetch(`/api/projects/${activeProjectId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(info)
+            });
+            refreshProjects();
+        } catch (e) {
+            console.error(e);
+        }
     };
 
-    const addRnRItem = (parentId: string | null, level: RnRLevel, group: string = '할 일') => {
-        const newItem: RnRItem = {
-            id: uuidv4(),
-            level,
-            parentId,
-            name: '새로운 업무',
-            assignee: '미정',
-            roleDescription: '-',
-            scope: '-',
-            startDate: new Date().toISOString().split('T')[0],
-            endDate: new Date().toISOString().split('T')[0],
-            collapsed: false,
-            group,
-            status: 'Empty',
-            priority: 'Empty',
-            budget: 0,
-            memo: '',
-            lastUpdated: new Date().toISOString()
-        };
-
-        setProjects(prev => prev.map(p => {
-            if (p.id !== activeProjectId) return p;
-            return {
-                ...p,
-                rnrItems: [...p.rnrItems, newItem]
-            };
-        }));
+    const addRnRItem = async (parentId: string | null, level: RnRLevel, group: string = '할 일') => {
+        if (!activeProjectId) return;
+        try {
+            await fetch('/api/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    projectId: activeProjectId,
+                    level,
+                    parentId,
+                    group,
+                    startDate: new Date().toISOString().split('T')[0],
+                    endDate: new Date().toISOString().split('T')[0]
+                })
+            });
+            refreshProjects();
+        } catch (e) {
+            console.error(e);
+        }
     };
 
-    const addGroup = (name: string) => {
-        setProjects(prev => prev.map(p => {
-            if (p.id !== activeProjectId) return p;
-            if (p.groups.includes(name)) return p;
-            return { ...p, groups: [...p.groups, name] };
-        }));
+    const updateRnRItem = async (id: string, updates: Partial<RnRItem>) => {
+        try {
+            await fetch(`/api/tasks/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updates)
+            });
+            refreshProjects();
+        } catch (e) {
+            console.error(e);
+        }
     };
 
-    const deleteGroup = (name: string) => {
-        setProjects(prev => prev.map(p => {
-            if (p.id !== activeProjectId) return p;
-            // Move items in deleted group to default or just delete?
-            // Re-assign to first group or delete items. Let's delete items for simplicity or move to first group.
-            // Safe: move to first remaining group.
-            const remainingGroups = p.groups.filter(g => g !== name);
-            if (remainingGroups.length === 0) return p; // Cannot delete last group
-
-            const fallbackGroup = remainingGroups[0];
-            const updatedItems = p.rnrItems.map(item => item.group === name ? { ...item, group: fallbackGroup } : item);
-
-            return { ...p, groups: remainingGroups, rnrItems: updatedItems };
-        }));
-    };
-
-    const updateRnRItem = (id: string, updates: Partial<RnRItem>) => {
-        setProjects(prev => prev.map(p => {
-            if (p.id !== activeProjectId) return p;
-            return {
-                ...p,
-                rnrItems: p.rnrItems.map(item => item.id === id ? { ...item, ...updates } : item)
-            };
-        }));
-    };
-
-    const deleteRnRItem = (id: string) => {
-        setProjects(prev => prev.map(p => {
-            if (p.id !== activeProjectId) return p;
-            return {
-                ...p,
-                rnrItems: p.rnrItems.filter(item => item.id !== id)
-            };
-        }));
+    const deleteRnRItem = async (id: string) => {
+        if (!confirm('삭제하시겠습니까?')) return;
+        try {
+            await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+            refreshProjects();
+        } catch (e) {
+            console.error(e);
+        }
     };
 
     const moveRnRItem = (id: string, direction: 'up' | 'down') => {
-        setProjects(prev => prev.map(p => {
-            if (p.id !== activeProjectId) return p;
-            const index = p.rnrItems.findIndex(i => i.id === id);
-            if (index === -1) return p;
-
-            const newItems = [...p.rnrItems];
-            const swapIndex = direction === 'up' ? index - 1 : index + 1;
-
-            if (swapIndex >= 0 && swapIndex < newItems.length) {
-                [newItems[index], newItems[swapIndex]] = [newItems[swapIndex], newItems[index]];
-            }
-            return { ...p, rnrItems: newItems };
-        }));
+        alert('순서 변경은 아직 저장되지 않습니다.');
     };
 
     const toggleCollapse = (id: string) => {
-        setProjects(prev => prev.map(p => {
-            if (p.id !== activeProjectId) return p;
-            return {
-                ...p,
-                rnrItems: p.rnrItems.map(item => item.id === id ? { ...item, collapsed: !item.collapsed } : item)
-            };
-        }));
+        // Toggle locally + save logic if needed, or just keep local state for UI toggle?
+        // Let's implement full persistence for collapsed state as schema has it.
+        const project = projects.find(p => p.id === activeProjectId);
+        const item = project?.rnrItems.find(i => i.id === id);
+        if (item) {
+            updateRnRItem(id, { collapsed: !item.collapsed });
+        }
     };
 
-    const addMeeting = (meeting?: Meeting) => {
-        const newMeeting: Meeting = meeting || {
-            id: uuidv4(),
-            date: new Date().toISOString().split('T')[0],
-            attendees: '',
-            agenda: '새 회의',
-            decisions: '',
-            actionItems: '',
-            transcript: ''
-        };
-        setProjects(prev => prev.map(p => {
-            if (p.id !== activeProjectId) return p;
-            return {
-                ...p,
-                meetings: [newMeeting, ...p.meetings]
-            };
-        }));
+    const addMeeting = async (meeting?: Meeting) => {
+        if (!activeProjectId) return;
+        try {
+            await fetch('/api/meetings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(meeting || {
+                    projectId: activeProjectId,
+                    date: new Date().toISOString().split('T')[0],
+                    agenda: '새 회의'
+                })
+            });
+            refreshProjects();
+        } catch (e) {
+            console.error(e);
+        }
     };
 
-    const updateMeeting = (id: string, updates: Partial<Meeting>) => {
-        setProjects(prev => prev.map(p => {
-            if (p.id !== activeProjectId) return p;
-            return {
-                ...p,
-                meetings: p.meetings.map(m => m.id === id ? { ...m, ...updates } : m)
-            };
-        }));
+    const updateMeeting = async (id: string, updates: Partial<Meeting>) => {
+        try {
+            await fetch(`/api/meetings/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updates)
+            });
+            refreshProjects();
+        } catch (e) {
+            console.error(e);
+        }
     };
 
-    const deleteMeeting = (id: string) => {
-        setProjects(prev => prev.map(p => {
-            if (p.id !== activeProjectId) return p;
-            return {
-                ...p,
-                meetings: p.meetings.filter(m => m.id !== id)
-            };
-        }));
+    const deleteMeeting = async (id: string) => {
+        try {
+            await fetch(`/api/meetings/${id}`, { method: 'DELETE' });
+            refreshProjects();
+        } catch (e) {
+            console.error(e);
+        }
     };
 
     const addMember = (projectId: string, member: Member) => {
-        setProjects(prev => prev.map(p => {
-            if (p.id !== projectId) return p;
-            if (p.members.some(m => m.id === member.id)) return p; // Already exists
-            return {
-                ...p,
-                members: [...p.members, { ...member, projectRole: 'member' }] // Default to 'member'
-            };
-        }));
+        alert('멤버 추가는 관리자 페이지나 프로젝트 설정에서 가능합니다 (개발 중)');
     };
 
     const updateMemberRole = (projectId: string, memberId: string, newRole: 'manager' | 'sub-manager' | 'member') => {
-        setProjects(prev => prev.map(p => {
-            if (p.id !== projectId) return p;
-
-            // Logic: Max 2 sub-managers
-            if (newRole === 'sub-manager') {
-                const currentSubManagers = p.members.filter(m => m.projectRole === 'sub-manager').length;
-                const isAlreadySub = p.members.find(m => m.id === memberId)?.projectRole === 'sub-manager';
-                if (!isAlreadySub && currentSubManagers >= 2) {
-                    alert('부관리자는 최대 2명까지만 지정할 수 있습니다.'); // Simple alert for now
-                    return p;
-                }
-            }
-
-            return {
-                ...p,
-                members: p.members.map(m => m.id === memberId ? { ...m, projectRole: newRole } : m)
-            };
-        }));
+        alert('멤버 권한 변경은 아직 저장되지 않습니다.');
     };
 
     const removeMember = (projectId: string, memberId: string) => {
-        setProjects(prev => prev.map(p => {
-            if (p.id !== projectId) return p;
-            return {
-                ...p,
-                members: p.members.filter(m => m.id !== memberId)
-            };
-        }));
+        alert('멤버 제거는 아직 저장되지 않습니다.');
+    };
+
+    const addGroup = async (name: string) => {
+        if (!activeProjectId) return;
+        try {
+            await fetch('/api/groups', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ projectId: activeProjectId, name })
+            });
+            refreshProjects();
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    const deleteGroup = (name: string) => {
+        alert('그룹 삭제는 아직 지원되지 않습니다.');
     };
 
     return (
         <ProjectContext.Provider value={{
             project: activeProject,
-            projects,
+            projects: visibleProjects,
             activeProjectId,
             createProject,
             switchProject,

@@ -91,7 +91,7 @@ export function ProjectView() {
                     <button
                         onClick={() => window.print()}
                         style={{
-                            background: 'white', color: themeStyles.color, border: 'none',
+                            background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.4)',
                             padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px'
                         }}
                     >

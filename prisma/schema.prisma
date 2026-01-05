@@ -29,3 +29,80 @@ model Department {
   name  String @unique
   color String?
 }
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  department  String
+  status      String   // 'Planning' | 'In Progress' | 'Done'
+  startDate   String
+  endDate     String
+  category    String?  // 'Internal' | 'Government Support' | 'Other'
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members     ProjectMember[]
+  tasks       Task[]
+  meetings    Meeting[]
+  groups      ProjectGroup[]
+}
+
+model ProjectMember {
+  id          String @id @default(uuid())
+  projectId   String
+  userId      String
+  projectRole String // 'manager' | 'sub-manager' | 'member'
+  
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+}
+
+model ProjectGroup {
+  id        String  @id @default(uuid())
+  projectId String
+  name      String
+  order     Int     @default(0)
+  
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id          String  @id @default(uuid())
+  projectId   String
+  level       Int
+  parentId    String?
+  name        String
+  assignee    String? // Store name directly for simplicity or relation? Keeping simplistic as per UI
+  roleDescription String?
+  scope       String?
+  startDate   String
+  endDate     String
+  collapsed   Boolean @default(false)
+  
+  group       String // Group Name (references ProjectGroup name conceptually)
+  status      String // 'Working on it', 'Done', 'Stuck', 'Empty'
+  priority    String // 'High', 'Medium', 'Low', 'Empty'
+  budget      Float   @default(0)
+  memo        String?
+  files       String[] // Array of file names/urls (Postgres supports string[])
+  lastUpdated DateTime @default(now())
+
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Meeting {
+  id          String  @id @default(uuid())
+  projectId   String
+  date        String
+  time        String?
+  attendees   String?
+  agenda      String?
+  decisions   String?
+  actionItems String?
+  transcript  String?
+
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}

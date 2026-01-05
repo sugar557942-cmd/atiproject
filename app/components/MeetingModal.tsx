@@ -46,12 +46,17 @@ export function MeetingModal({ meeting, onClose, onSave }: MeetingModalProps) {
                 method: 'POST',
                 body: data
             });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Upload failed (${response.status}): ${errorText.substring(0, 100)}`);
+            }
+
             const result = await response.json();
 
             if (result.success) {
                 setFormData(prev => {
                     const newDecisions = prev.decisions + '\n' + result.summary;
-                    // Side-effect: sync editor view
                     if (editorRef.current) {
                         editorRef.current.innerHTML = newDecisions;
                     }
@@ -65,9 +70,9 @@ export function MeetingModal({ meeting, onClose, onSave }: MeetingModalProps) {
             } else {
                 alert('Analysis failed: ' + result.error);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert('Error uploading file');
+            alert(`Error uploading file: ${error.message}`);
         } finally {
             setIsAnalyzing(false);
         }

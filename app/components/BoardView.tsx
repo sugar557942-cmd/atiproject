@@ -8,10 +8,31 @@ import { Plus, ChevronDown, ChevronRight, User, MoreHorizontal, Calendar, Info, 
 import { FileManageModal } from './FileManageModal';
 import { Paperclip } from 'lucide-react';
 
+import { Trash2 } from 'lucide-react'; // Added Trash2
+
 export function BoardView() {
-    const { project, addRnRItem, addGroup, updateRnRItem } = useProject(); // Added updateRnRItem
+    const { project, addRnRItem, addGroup, updateRnRItem } = useProject();
     const [searchTerm, setSearchTerm] = useState('');
     const [fileModalItem, setFileModalItem] = useState<RnRItem | null>(null);
+
+    // Filter & Sort State
+    const [filterStatus, setFilterStatus] = useState<string | null>(null); // Simple single filter for demo
+    const [filterPriority, setFilterPriority] = useState<string | null>(null);
+    const [sortKey, setSortKey] = useState<'status' | 'priority' | 'endDate' | null>(null);
+    const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+
+    // Advanced Filter UI State
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [isSortOpen, setIsSortOpen] = useState(false);
+
+    const toggleSort = (key: 'status' | 'priority' | 'endDate') => {
+        if (sortKey === key) {
+            setSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortDir('asc');
+        }
+    };
 
     return (
         <div className={styles.boardContainer}>
@@ -30,9 +51,87 @@ export function BoardView() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <button className={styles.filterBtn}><User size={16} /> 사람</button>
-                    <button className={styles.filterBtn}><Filter size={16} /> 필터</button>
-                    <button className={styles.filterBtn}><ArrowUpDown size={16} /> 정렬</button>
+                    {/* Removed People Button */}
+
+                    <div style={{ position: 'relative' }}>
+                        <button
+                            className={`${styles.filterBtn} ${isFilterOpen ? styles.active : ''}`}
+                            onClick={() => setIsFilterOpen(!isFilterOpen)}
+                        >
+                            <Filter size={16} /> 필터
+                        </button>
+                        {isFilterOpen && (
+                            <div style={{
+                                position: 'absolute', top: '100%', left: 0, background: 'white',
+                                border: '1px solid #ddd', borderRadius: '8px', padding: '12px', zIndex: 100,
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)', minWidth: '200px'
+                            }}>
+                                <div style={{ marginBottom: '8px', fontWeight: 600, fontSize: '13px' }}>상태</div>
+                                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                                    {['Working on it', 'Done', 'Stuck', 'Empty'].map(st => (
+                                        <button key={st}
+                                            onClick={() => setFilterStatus(filterStatus === st ? null : st)}
+                                            style={{
+                                                padding: '4px 8px', borderRadius: '4px', fontSize: '12px',
+                                                background: filterStatus === st ? '#0073ea' : '#f0f0f0',
+                                                color: filterStatus === st ? 'white' : '#333', border: 'none', cursor: 'pointer'
+                                            }}
+                                        >
+                                            {st}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div style={{ marginBottom: '8px', fontWeight: 600, fontSize: '13px' }}>우선순위</div>
+                                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                    {['High', 'Medium', 'Low', 'Empty'].map(pr => (
+                                        <button key={pr}
+                                            onClick={() => setFilterPriority(filterPriority === pr ? null : pr)}
+                                            style={{
+                                                padding: '4px 8px', borderRadius: '4px', fontSize: '12px',
+                                                background: filterPriority === pr ? '#0073ea' : '#f0f0f0',
+                                                color: filterPriority === pr ? 'white' : '#333', border: 'none', cursor: 'pointer'
+                                            }}
+                                        >
+                                            {pr}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div style={{ position: 'relative' }}>
+                        <button
+                            className={styles.filterBtn}
+                            onClick={() => setIsSortOpen(!isSortOpen)}
+                        >
+                            <ArrowUpDown size={16} /> 정렬
+                        </button>
+                        {isSortOpen && (
+                            <div style={{
+                                position: 'absolute', top: '100%', left: 0, background: 'white',
+                                border: '1px solid #ddd', borderRadius: '8px', padding: '8px', zIndex: 100,
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)', minWidth: '150px',
+                                display: 'flex', flexDirection: 'column', gap: '4px'
+                            }}>
+                                <button onClick={() => toggleSort('status')} style={{ background: sortKey === 'status' ? '#eef' : 'white', border: 'none', textAlign: 'left', padding: '6px', fontSize: '13px', cursor: 'pointer', borderRadius: '4px' }}>
+                                    상태 {sortKey === 'status' && (sortDir === 'asc' ? '↑' : '↓')}
+                                </button>
+                                <button onClick={() => toggleSort('priority')} style={{ background: sortKey === 'priority' ? '#eef' : 'white', border: 'none', textAlign: 'left', padding: '6px', fontSize: '13px', cursor: 'pointer', borderRadius: '4px' }}>
+                                    우선순위 {sortKey === 'priority' && (sortDir === 'asc' ? '↑' : '↓')}
+                                </button>
+                                <button onClick={() => toggleSort('endDate')} style={{ background: sortKey === 'endDate' ? '#eef' : 'white', border: 'none', textAlign: 'left', padding: '6px', fontSize: '13px', cursor: 'pointer', borderRadius: '4px' }}>
+                                    마감일 {sortKey === 'endDate' && (sortDir === 'asc' ? '↑' : '↓')}
+                                </button>
+                                <div style={{ borderTop: '1px solid #eee', marginTop: '4px', paddingTop: '4px' }}>
+                                    <button onClick={() => { setSortKey(null); setIsSortOpen(false); }} style={{ background: 'white', border: 'none', textAlign: 'left', padding: '6px', fontSize: '13px', cursor: 'pointer', color: '#e2445c' }}>
+                                        초기화
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
                 <div className={styles.actionsRight}>
                     <button className={styles.iconBtn}><MoreHorizontal size={18} /></button>
@@ -42,7 +141,15 @@ export function BoardView() {
             {/* Board Content */}
             <div className={styles.boardContent}>
                 {project.groups.map(groupName => (
-                    <BoardGroup key={groupName} groupName={groupName} onOpenFile={(item) => setFileModalItem(item)} />
+                    <BoardGroup
+                        key={groupName}
+                        groupName={groupName}
+                        onOpenFile={(item) => setFileModalItem(item)}
+                        filterStatus={filterStatus}
+                        filterPriority={filterPriority}
+                        sortKey={sortKey}
+                        sortDir={sortDir}
+                    />
                 ))}
 
                 <div className={styles.addGroupSection}>
@@ -63,26 +170,64 @@ export function BoardView() {
     );
 }
 
-function BoardGroup({ groupName, onOpenFile }: { groupName: string, onOpenFile: (item: RnRItem) => void }) {
+function BoardGroup({ groupName, onOpenFile, filterStatus, filterPriority, sortKey, sortDir }: {
+    groupName: string,
+    onOpenFile: (item: RnRItem) => void,
+    filterStatus: string | null,
+    filterPriority: string | null,
+    sortKey: 'status' | 'priority' | 'endDate' | null,
+    sortDir: 'asc' | 'desc'
+}) {
     const { project, updateRnRItem, deleteRnRItem, addRnRItem } = useProject();
     const [collapsed, setCollapsed] = useState(false);
 
-    // Filter items for this group
-    const items = project.rnrItems.filter(item => item.group === groupName);
+    // Initial Filter by Group
+    let items = project.rnrItems.filter(item => item.group === groupName);
 
-    // Color based on group name (simple hash or preset)
+    // Apply Filters
+    if (filterStatus) {
+        items = items.filter(item => item.status === filterStatus);
+    }
+    if (filterPriority) {
+        items = items.filter(item => item.priority === filterPriority);
+    }
+
+    // Apply Sorting (Only logic for flat list mainly, hierarchy complicates specific sort, but we apply to filtered list)
+    // Note: Hierarchy sorting is complex. For now, if sort is active, we might flatten or sort roots and children recursively.
+    // Let's sort simply by property for now.
+    if (sortKey) {
+        items.sort((a, b) => {
+            const valA = a[sortKey] || '';
+            const valB = b[sortKey] || '';
+            if (valA < valB) return sortDir === 'asc' ? -1 : 1;
+            if (valA > valB) return sortDir === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }
+
+    // Color based on group name
     const groupColor = groupName === '완료됨' ? '#00c875' : '#579bfc';
 
     // Hierarchy Logic
-    const rootItems = items.filter(i => !i.parentId && i.level === 1);
+    // If Filter/Sort is active, hierarchy might be broken visually if parents are filtered out.
+    // Enhanced Logic: If filtered, show flat list? Or just filtered items.
+    // For simplicity: Simple traversal. If parent missing, it shows as root (due to parentId check in local list).
+    // Actually, `rootItems` checks `parentId`. If parent is filtered out, child won't show if we rely on recursive render from parent.
+    // Fix: If filter/sort active, render flat list.
+    const isFilteredOrSorted = !!filterStatus || !!filterPriority || !!sortKey;
+
+    // If not filtered/sorted, use hierarchy.
+    // If filtered/sorted, use flat list.
+
+    const rootItems = isFilteredOrSorted ? items : items.filter(i => !i.parentId && i.level === 1);
 
     const renderHierarchy = (parentId: string | null, level: number) => {
-        // Find children for this parent (within this group)
-        // Note: Cross-group parenting is edge case; assuming children stay in same group for now
+        if (isFilteredOrSorted) return null; // Logic handled in flat map below
+
         const children = items.filter(i => i.parentId === parentId);
 
+        // ... (copy previous logic, adapted)
         if (level === 1) {
-            // Level 1: Iterate roots
             return rootItems.map(root => (
                 <React.Fragment key={root.id}>
                     <BoardRow item={root} groupColor={groupColor} hasChildren={items.some(i => i.parentId === root.id)} onOpenFile={onOpenFile} />
@@ -91,7 +236,6 @@ function BoardGroup({ groupName, onOpenFile }: { groupName: string, onOpenFile: 
             ));
         }
 
-        // Level 2 & 3: Iterate children of passed parent
         return children.map(child => (
             <React.Fragment key={child.id}>
                 <BoardRow item={child} groupColor={groupColor} hasChildren={items.some(i => i.parentId === child.id)} onOpenFile={onOpenFile} />
@@ -114,7 +258,7 @@ function BoardGroup({ groupName, onOpenFile }: { groupName: string, onOpenFile: 
 
             {!collapsed && (
                 <div className={styles.tableWrapper}>
-                    {/* Table Header */}
+                    {/* ... Header ... */}
                     <div className={styles.tableHeaderRow}>
                         <div className={styles.thName} style={{ borderLeft: `6px solid ${groupColor}` }}>태스크</div>
                         <div className={styles.thOwner}>소유자</div>
@@ -128,34 +272,40 @@ function BoardGroup({ groupName, onOpenFile }: { groupName: string, onOpenFile: 
                         <div className={styles.thLastUpdate}>지난 업데이트</div>
                     </div>
 
-                    {/* Hierarchy Rows */}
-                    {renderHierarchy(null, 1)}
+                    {/* Hierarchy Rows or Flat List */}
+                    {isFilteredOrSorted ? (
+                        items.map(item => (
+                            <BoardRow key={item.id} item={item} groupColor={groupColor} hasChildren={false} onOpenFile={onOpenFile} />
+                        ))
+                    ) : (
+                        renderHierarchy(null, 1)
+                    )}
 
-                    {/* Add Row Input */}
-                    <div className={styles.addRowContainer}>
-                        <div className={styles.addRowInputWrapper} style={{ borderLeft: `6px solid ${groupColor}40` }}>
-                            <input
-                                className={styles.addRowInput}
-                                placeholder="+ 태스크 추가"
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        addRnRItem(null, 1, groupName);
-                                        (e.target as HTMLInputElement).value = '';
-                                    }
-                                }}
-                            />
+                    {/* Input Row */}
+                    {!isFilteredOrSorted && (
+                        <div className={styles.addRowContainer}>
+                            <div className={styles.addRowInputWrapper} style={{ borderLeft: `6px solid ${groupColor}40` }}>
+                                <input
+                                    className={styles.addRowInput}
+                                    placeholder="+ 태스크 추가"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            addRnRItem(null, 1, groupName);
+                                            (e.target as HTMLInputElement).value = '';
+                                        }
+                                    }}
+                                />
+                            </div>
                         </div>
-                    </div>
+                    )}
 
-                    {/* Footer / Summary */}
+                    {/* Footer */}
                     <div className={styles.groupFooter}>
+                        {/* ... */}
                         <div className={styles.thName}></div>
                         <div className={styles.thOwner}></div>
                         <div className={styles.thStatus}>
-                            <div className={styles.progressBar}>
-                                <div className={styles.progressFill} style={{ width: '60%', background: '#fdab3d' }}></div>
-                                <div className={styles.progressFill} style={{ width: '40%', background: '#00c875' }}></div>
-                            </div>
+                            {/* Summary bars */}
                         </div>
                         <div className={styles.thDate}></div>
                         <div className={styles.thPriority}></div>
@@ -175,9 +325,9 @@ function BoardGroup({ groupName, onOpenFile }: { groupName: string, onOpenFile: 
 }
 
 function BoardRow({ item, groupColor, hasChildren, onOpenFile }: { item: RnRItem, groupColor: string, hasChildren: boolean, onOpenFile: (item: RnRItem) => void }) {
-    const { updateRnRItem, addRnRItem, toggleCollapse } = useProject();
+    const { updateRnRItem, addRnRItem, toggleCollapse, deleteRnRItem } = useProject(); // Added deleteRnRItem
 
-    // Mapping for colors
+    // ... color helpers ...
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'Done': return '#00c875'; // Green
@@ -196,11 +346,9 @@ function BoardRow({ item, groupColor, hasChildren, onOpenFile }: { item: RnRItem
         }
     };
 
-    // Indentation Style
     const borderLeftColor = item.level === 1 ? groupColor : 'transparent';
     const paddingLeft = (item.level - 1) * 24 + 10;
 
-    // Sub-item connector visual (simple approximation)
     const connectorStyle = item.level > 1 ? {
         borderLeft: '2px solid #e6e9ef',
         borderBottom: '2px solid #e6e9ef',
@@ -214,16 +362,24 @@ function BoardRow({ item, groupColor, hasChildren, onOpenFile }: { item: RnRItem
     return (
         <div className={styles.row}>
             <div className={styles.cellName} style={{ borderLeft: `6px solid ${borderLeftColor}`, position: 'relative' }}>
-                {/* Visual Connector for Levels 2,3 */}
                 {item.level > 1 && <div style={connectorStyle}></div>}
 
-                <div style={{ marginLeft: `${item.level > 1 ? paddingLeft : 0}px`, display: 'flex', alignItems: 'center', width: '100%' }}>
-                    {/* Collapse/Expand for Parent */}
+                <div style={{ marginLeft: `${item.level > 1 ? paddingLeft : 0}px`, display: 'flex', alignItems: 'center', width: '100%', gap: '4px' }}>
+                    {/* Delete Icon (Trash2) - Always visible or hover */}
+                    <button
+                        className={styles.iconBtn}
+                        onClick={() => deleteRnRItem(item.id)}
+                        style={{ color: '#e2445c', padding: 2 }}
+                        title="삭제"
+                    >
+                        <Trash2 size={12} />
+                    </button>
+
                     {(item.level < 3) && (
                         <button
                             className={styles.rowActionBtn}
                             onClick={() => toggleCollapse(item.id)}
-                            style={{ opacity: hasChildren ? 1 : 0.3, marginRight: 4 }}
+                            style={{ opacity: hasChildren ? 1 : 0.3 }}
                         >
                             {item.collapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
                         </button>
@@ -235,19 +391,17 @@ function BoardRow({ item, groupColor, hasChildren, onOpenFile }: { item: RnRItem
                         onChange={(e) => updateRnRItem(item.id, { name: e.target.value })}
                         style={{ fontWeight: item.level === 1 ? 500 : 400 }}
                     />
-
-                    {/* Add Sub-item Btn (hover only usually, but visible for now) */}
                     {item.level < 3 && (
                         <button
                             className={styles.addSubBtn}
                             onClick={() => addRnRItem(item.id, (item.level + 1) as any, item.group)}
-                            title="하위 태스크 추가"
                         >
                             <Plus size={12} />
                         </button>
                     )}
                 </div>
             </div>
+            {/* ... other cells (Owner, Status, etc) ... */}
             <div className={styles.cellOwner}>
                 <div className={styles.avatar} title={item.assignee}>
                     {item.assignee ? item.assignee.charAt(0) : <User size={14} />}
@@ -257,7 +411,6 @@ function BoardRow({ item, groupColor, hasChildren, onOpenFile }: { item: RnRItem
                 className={styles.cellStatus}
                 style={{ backgroundColor: getStatusColor(item.status) }}
                 onClick={() => {
-                    // Simple rotation for demo. Real app needs dropdown.
                     const next = item.status === 'Working on it' ? 'Done' : item.status === 'Done' ? 'Stuck' : 'Working on it';
                     updateRnRItem(item.id, { status: next });
                 }}
