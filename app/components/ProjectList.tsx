@@ -15,15 +15,33 @@ export function ProjectList({ isOpen, onClose }: ProjectListProps) {
     const { projects, activeProjectId, switchProject, createProject, deleteProject, setViewMode, viewMode } = useProject();
     const { isAdmin } = useAuth(); // Added isAdmin
     const [isCreating, setIsCreating] = useState(false);
+
+    // Form State
     const [newName, setNewName] = useState('');
-    const [newDept, setNewDept] = useState('');
+    const [newDept, setNewDept] = useState('제품 디자인팀'); // Default
+    const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+    const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+    const [category, setCategory] = useState('내부'); // Default: Internal
+
+    const DEPARTMENTS = ['제품 디자인팀', '개발팀', '기획팀', '마케팅팀', '인사팀'];
+    const CATEGORIES = [
+        { value: 'Internal', label: '내부' },
+        { value: 'Government Support', label: '정부지원사업' },
+        { value: 'Other', label: '기타' }
+    ];
 
     const handleCreate = (e: React.FormEvent) => {
         e.preventDefault();
-        if (newName && newDept) {
-            createProject(newName, newDept);
+        if (newName && newDept && startDate && endDate && category) {
+            createProject(newName, newDept, startDate, endDate, category);
+
+            // Reset
             setNewName('');
-            setNewDept('');
+            setNewDept('제품 디자인팀');
+            setStartDate(new Date().toISOString().split('T')[0]);
+            setEndDate(new Date().toISOString().split('T')[0]);
+            setCategory('Internal');
+
             setIsCreating(false);
         }
     };
@@ -61,12 +79,47 @@ export function ProjectList({ isOpen, onClose }: ProjectListProps) {
                         className={styles.input}
                         autoFocus
                     />
-                    <input
-                        placeholder="부서 (예: 마케팅)"
+
+                    {/* Department Dropdown */}
+                    <select
                         value={newDept}
                         onChange={e => setNewDept(e.target.value)}
                         className={styles.input}
-                    />
+                    >
+                        {DEPARTMENTS.map(dept => (
+                            <option key={dept} value={dept}>{dept}</option>
+                        ))}
+                    </select>
+
+                    {/* Dates */}
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <input
+                            type="date"
+                            value={startDate}
+                            onChange={e => setStartDate(e.target.value)}
+                            className={styles.input}
+                            style={{ flex: 1 }}
+                        />
+                        <input
+                            type="date"
+                            value={endDate}
+                            onChange={e => setEndDate(e.target.value)}
+                            className={styles.input}
+                            style={{ flex: 1 }}
+                        />
+                    </div>
+
+                    {/* Category Dropdown */}
+                    <select
+                        value={category}
+                        onChange={e => setCategory(e.target.value)}
+                        className={styles.input}
+                    >
+                        {CATEGORIES.map(cat => (
+                            <option key={cat.value} value={cat.value}>{cat.label}</option>
+                        ))}
+                    </select>
+
                     <div className={styles.formActions}>
                         <button type="submit" className={styles.submitBtn}>생성</button>
                         <button type="button" onClick={() => setIsCreating(false)} className={styles.cancelBtn}>취소</button>

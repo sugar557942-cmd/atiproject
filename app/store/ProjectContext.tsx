@@ -55,6 +55,7 @@ export interface Project {
     status: 'Planning' | 'In Progress' | 'Done';
     startDate: string;
     endDate: string;
+    category?: 'Internal' | 'Government Support' | 'Other'; // New category
     groups: string[]; // Ordered list of groups
     rnrItems: RnRItem[];
     meetings: Meeting[];
@@ -65,11 +66,11 @@ interface ProjectContextType {
     project: Project;
     projects: Project[];
     activeProjectId: string;
-    createProject: (name: string, department: string) => void;
+    createProject: (name: string, department: string, startDate: string, endDate: string, category: string) => void; // Updated
     switchProject: (id: string) => void;
     deleteProject: (id: string) => void;
     updateProjectInfo: (info: Partial<Project>) => void;
-    addRnRItem: (parentId: string | null, level: RnRLevel, group?: string) => void; // Updated signature
+    addRnRItem: (parentId: string | null, level: RnRLevel, group?: string) => void;
     updateRnRItem: (id: string, updates: Partial<RnRItem>) => void;
     deleteRnRItem: (id: string) => void;
     moveRnRItem: (id: string, direction: 'up' | 'down') => void;
@@ -80,14 +81,12 @@ interface ProjectContextType {
     addMember: (projectId: string, member: Member) => void;
     updateMemberRole: (projectId: string, memberId: string, newRole: 'manager' | 'sub-manager' | 'member') => void;
     removeMember: (projectId: string, memberId: string) => void;
-    addGroup: (name: string) => void; // New
-    deleteGroup: (name: string) => void; // New
-    // New View Mode
-    // New View Mode
+    addGroup: (name: string) => void;
+    deleteGroup: (name: string) => void;
+
     viewMode: 'project' | 'my-work' | 'home' | 'performance' | 'certification' | 'admin-settings';
     setViewMode: (mode: 'project' | 'my-work' | 'home' | 'performance' | 'certification' | 'admin-settings') => void;
 
-    // Board Filter for Dashboard Interaction
     boardFilter: string | null;
     setBoardFilter: (filter: string | null) => void;
 }
@@ -101,6 +100,7 @@ const initialProject: Project = {
     status: 'In Progress',
     startDate: '2024-01-01',
     endDate: '2024-06-30',
+    category: 'Internal',
     groups: ['할 일', '완료됨'],
     rnrItems: [
         {
@@ -151,7 +151,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
 
     const activeProject = projects.find(p => p.id === activeProjectId) || projects[0];
 
-    const createProject = (name: string, department: string) => {
+    const createProject = (name: string, department: string, startDate: string, endDate: string, category: string) => {
         // Find current user (mock: kim / u1) to set as Manager
         const currentUser: Member = { id: 'u1', name: '김철수', role: 'Project Manager', projectRole: 'manager', avatar: '#579bfc', email: 'kim@ati.com' };
 
@@ -160,9 +160,10 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
             name,
             description: '',
             department,
-            status: 'Planning',
-            startDate: new Date().toISOString().split('T')[0],
-            endDate: new Date().toISOString().split('T')[0],
+            status: 'Planning', // Initial status
+            startDate,
+            endDate,
+            category: category as any,
             groups: ['할 일'],
             rnrItems: [],
             meetings: [],

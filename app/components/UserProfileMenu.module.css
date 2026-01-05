@@ -1,0 +1,99 @@
+.container {
+    position: relative;
+}
+
+.menuBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 1px solid #e6e9ef;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.menuBtn:hover {
+    background: #f5f6f8;
+    border-color: #d0d4e4;
+}
+
+.avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #323338;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 180px;
+    z-index: 1000;
+    overflow: hidden;
+    animation: fadeIn 0.1s ease-out;
+    border: 1px solid #e6e9ef;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.menuItem {
+    width: 100%;
+    text-align: left;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    font-size: 13px;
+    color: #323338;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.menuItem:hover {
+    background: #f5f6f8;
+    color: #0073ea;
+}
+
+.divider {
+    height: 1px;
+    background: #e6e9ef;
+    margin: 4px 0;
+}
+
+.logout {
+    color: #e2445c;
+}
+
+.logout:hover {
+    background: #fff0f0;
+    color: #d13047;
+}

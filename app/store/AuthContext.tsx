@@ -29,6 +29,7 @@ interface AuthContextType {
 
     approveUser: (id: string) => void;
     rejectUser: (id: string) => void;
+    updateProfile: (data: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -109,12 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     // Note: This is client-side duplicate check (sync) in original code.
-    // We should move this to RegisterModal or make it async.
-    // For now, I'll provide a dummy function or implementation that simply returns true
-    // (Actual check happens on server during register). 
-    // OR implement a check API. 
-    // Let's implement a simple check function that always returns true to avoid breaking UI,
-    // but the `register` function will handle the error.
+    // We update it to async in usage.
     const checkIdAvailability = async (id: string) => {
         return true;
     };
@@ -137,13 +133,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         fetchList(); // Refresh
     };
 
+    const updateProfile = (data: Partial<User>) => {
+        if (user) {
+            setUser({ ...user, ...data });
+        }
+    };
+
     const isAdmin = user?.role === 'admin';
 
     return (
         <AuthContext.Provider value={{
             user, login, logout, isAdmin,
             register, pendingUsers, checkIdAvailability,
-            approveUser, rejectUser
+            approveUser, rejectUser, updateProfile
         }}>
             {children}
         </AuthContext.Provider>

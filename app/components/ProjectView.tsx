@@ -13,14 +13,25 @@ import { InviteMemberModal } from './InviteMemberModal';
 import { useAuth } from '../store/AuthContext';
 
 // Export ProjectView directly as the content component
+import { getProjectStatus, getStatusStyle, getStatusLabel } from '../utils/projectUtils';
+import { ProjectEditModal } from './ProjectEditModal';
+import { Edit2 } from 'lucide-react';
+
+// Export ProjectView directly as the content component
 export function ProjectView() {
     const { project, updateProjectInfo } = useProject();
     // Auth
     const [activeTab, setActiveTab] = useState<'analytics' | 'board' | 'gantt' | 'meetings'>('analytics');
     const [isInviteOpen, setIsInviteOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
 
     const themeName = getDepartmentTheme(project.department);
     const themeStyles = getThemeStyles(themeName);
+
+    // Dynamic Status Calculation
+    const currentStatus = getProjectStatus(project.startDate, project.endDate);
+    const statusStyle = getStatusStyle(currentStatus);
+    const statusLabel = getStatusLabel(currentStatus);
 
     return (
         <div className={styles.container}>
@@ -31,17 +42,34 @@ export function ProjectView() {
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center'
             }}>
                 <div className={styles.titleInfo}>
-                    <input
-                        value={project.name}
-                        onChange={(e) => updateProjectInfo({ name: e.target.value })}
-                        className={styles.projectTitleInput}
-                    />
-                    <div className={styles.metaRow} style={{ color: 'inherit', opacity: 0.9 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <h1 style={{ margin: 0, fontSize: '24px' }}>{project.name}</h1>
+                        <button
+                            onClick={() => setIsEditOpen(true)}
+                            style={{
+                                background: 'transparent',
+                                border: 'none',
+                                cursor: 'pointer',
+                                color: 'inherit',
+                                opacity: 0.7,
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '4px'
+                            }}
+                            title="프로젝트 정보 수정"
+                        >
+                            <Edit2 size={16} />
+                        </button>
+                    </div>
+
+                    <div className={styles.metaRow} style={{ color: 'inherit', opacity: 0.9, marginTop: '8px' }}>
                         <span className={styles.tag} style={{
-                            background: 'rgba(255,255,255,0.2)',
-                            color: 'inherit',
-                            border: '1px solid rgba(255,255,255,0.3)'
-                        }}>{project.status}</span>
+                            ...statusStyle,
+                            padding: '4px 8px',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '600'
+                        }}>{statusLabel}</span>
                         <span className={styles.metaItem}>{project.startDate} ~ {project.endDate}</span>
                         <span className={styles.metaItem}>{project.department}</span>
                     </div>
@@ -57,7 +85,7 @@ export function ProjectView() {
                             padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px'
                         }}
                     >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                        <Users size={14} />
                         초대하기
                     </button>
                     <button
@@ -77,6 +105,12 @@ export function ProjectView() {
             <InviteMemberModal
                 isOpen={isInviteOpen}
                 onClose={() => setIsInviteOpen(false)}
+            />
+
+            {/* Project Edit Modal */}
+            <ProjectEditModal
+                isOpen={isEditOpen}
+                onClose={() => setIsEditOpen(false)}
             />
 
 

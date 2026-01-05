@@ -12,6 +12,7 @@ import { PerformanceView } from './components/PerformanceView';
 import { CertificationView } from './components/CertificationView';
 import { AdminSettingsView } from './components/AdminSettingsView';
 import { MobileTabBar } from './components/MobileTabBar';
+import { UserProfileMenu } from './components/UserProfileMenu';
 
 function AppContent() {
     const { user } = useAuth();
@@ -35,26 +36,31 @@ function AppContent() {
             <ProjectList isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
             <div style={{ flex: 1, padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                {/* Mobile Header (Hamburger) - Optional if we strictly use TabBar, but helpful for Title */}
-                <div style={{
-                    display: 'none',
+                {/* Global Header */}
+                <header style={{
+                    display: 'flex',
                     alignItems: 'center',
-                    padding: '12px 16px',
+                    justifyContent: 'space-between',
+                    padding: '12px 24px',
                     background: 'white',
                     borderBottom: '1px solid #e6e9ef',
-                    justifyContent: 'center' // Center title
-                }} className="mobile-header">
-                    <span style={{ fontWeight: 'bold', fontSize: '16px' }}>ATI Project</span>
-                </div>
-                {/* Add simple style block for generic mobile header visibility */}
+                    height: '60px',
+                    flexShrink: 0
+                }}>
+                    <div style={{ fontWeight: 700, fontSize: '18px', color: '#0073ea', letterSpacing: '-0.5px' }}>
+                        ATI Project
+                    </div>
+                    <div>
+                        <UserProfileMenu />
+                    </div>
+                </header>
+
                 <style jsx>{`
                     @media (max-width: 768px) {
-                        .mobile-header { display: flex !important; }
                         /* Add padding bottom to content for TabBar */
                         .content-area { padding-bottom: 60px !important; }
                     }
                 `}</style>
-
                 <div className="content-area" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                     {viewMode === 'home' && <HomeDashboard />}
                     {viewMode === 'performance' && <div style={{ overflowY: 'auto', height: '100%' }}><PerformanceView /></div>}
