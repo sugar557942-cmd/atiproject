@@ -73,7 +73,7 @@ export async function GET(_request: Request) {
         const formattedProjects = projects.map(p => ({
             ...p,
             members: p.members.map(pm => ({
-                id: pm.user.id,
+                id: pm.user.username, // Use username as ID for frontend compatibility
                 name: pm.user.name,
                 role: pm.user.role || 'Member',
                 projectRole: pm.projectRole,
@@ -141,7 +141,7 @@ export async function POST(request: Request) {
         const formattedProject = {
             ...project,
             members: project.members.map(pm => ({
-                id: pm.user.id,
+                id: pm.user.username, // Use username as ID for frontend compatibility
                 name: pm.user.name,
                 role: pm.user.role,
                 projectRole: pm.projectRole,

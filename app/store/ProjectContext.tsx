@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { useAuth } from './AuthContext';
+import { useRouter } from 'next/navigation';
 
 // Types
 export type RnRLevel = 1 | 2 | 3;
@@ -143,14 +145,9 @@ const initialProject: Project = {
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
-import { useAuth } from './AuthContext'; // Added import
-
-// ... types ...
-
-// ... (keep interfaces)
-
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
-    const { user } = useAuth(); // Added user
+    const { user } = useAuth();
+    const router = useRouter();
     const [projects, setProjects] = useState<Project[]>([]);
     const [activeProjectId, setActiveProjectId] = useState<string>('');
     const [viewMode, setViewMode] = useState<'project' | 'my-work' | 'home' | 'performance' | 'certification' | 'admin-settings'>('home'); // Default to Home
@@ -223,6 +220,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
                 const newProject = await res.json();
                 await refreshProjects();
                 setActiveProjectId(newProject.id);
+                router.refresh(); // Force refresh server components/layout
             } else {
                 const err = await res.json();
                 alert(`프로젝트 생성 실패: ${err.error || '알 수 없는 오류'}`);
