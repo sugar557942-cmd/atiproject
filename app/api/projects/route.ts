@@ -35,7 +35,7 @@ async function getDbUserIdByUsername(username: string): Promise<string | null> {
 }
 
 // GET: List Projects (filtered)
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -68,4 +68,84 @@ export async function GET(request: Request) {
             });
         }
 
-        const formattedProjects =
+        const formattedProjects = projects.map(p => ({
+            ...p,
+            members: p.members.map(pm => ({
+                id: pm.user.id,
+                name: pm.user.name,
+                role: pm.user.role || 'Member',
+                projectRole: pm.projectRole,
+                avatar: pm.user.avatar || '#ccc',
+                email: pm.user.email
+            })),
+            rnrItems: p.tasks.map(t => ({
+                ...t
+            }))
+        }));
+
+        return NextResponse.json(formattedProjects);
+    } catch (e) {
+        console.error(e);
+        return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 });
+    }
+}
+
+// POST: Create Project
+export async function POST(request: Request) {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    try {
+        const body = await request.json();
+        const { name, department, startDate, endDate, category } = body;
+
+        const dbUserId = await getDbUserIdByUsername(user.id);
+        if (!dbUserId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+        const project = await prisma.project.create({
+            data: {
+                name,
+                department,
+                status: 'Planning',
+                startDate,
+                endDate,
+                category,
+                groups: {
+                    create: [
+                        { name: '할 일', order: 0 },
+                        { name: '완료됨', order: 1 }
+                    ]
+                },
+                members: {
+                    create: {
+                        userId: dbUserId,
+                        projectRole: 'manager'
+                    }
+                }
+            },
+            include: {
+                members: { include: { user: true } },
+                groups: true
+            }
+        });
+
+        const formattedProject = {
+            ...project,
+            members: project.members.map(pm => ({
+                id: pm.user.id,
+                name: pm.user.name,
+                role: pm.user.role,
+                projectRole: pm.projectRole,
+                avatar: pm.user.avatar || '#ccc',
+                email: pm.user.email
+            })),
+            rnrItems: [],
+            meetings: []
+        };
+
+        return NextResponse.json(formattedProject);
+    } catch (e) {
+        console.error(e);
+        return NextResponse.json({ error: 'Failed to create project' }, { status: 500 });
+    }
+}
