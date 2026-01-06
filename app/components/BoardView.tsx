@@ -6,9 +6,7 @@ import { useProject, RnRItem } from '../store/ProjectContext';
 import { Plus, ChevronDown, ChevronRight, User, MoreHorizontal, Calendar, Info, Search, Filter, ArrowUpDown, CircleUser } from 'lucide-react';
 
 import { FileManageModal } from './FileManageModal';
-import { Paperclip } from 'lucide-react';
-
-import { Trash2 } from 'lucide-react'; // Added Trash2
+import { Trash2, Paperclip, Check, RefreshCw } from 'lucide-react';
 
 export function BoardView() {
     const { project, addRnRItem, addGroup, updateRnRItem } = useProject();
@@ -134,7 +132,7 @@ export function BoardView() {
                     </div>
                 </div>
                 <div className={styles.actionsRight}>
-                    <button className={styles.iconBtn}><MoreHorizontal size={18} /></button>
+                    {/* Search or other right-aligned items if needed, mostly empty now as per request */}
                 </div>
             </div>
 
@@ -230,7 +228,7 @@ function BoardGroup({ groupName, onOpenFile, filterStatus, filterPriority, sortK
         if (level === 1) {
             return rootItems.map(root => (
                 <React.Fragment key={root.id}>
-                    <BoardRow item={root} groupColor={groupColor} hasChildren={items.some(i => i.parentId === root.id)} onOpenFile={onOpenFile} />
+                    <BoardRow item={root} groupName={groupName} groupColor={groupColor} hasChildren={items.some(i => i.parentId === root.id)} onOpenFile={onOpenFile} />
                     {!root.collapsed && renderHierarchy(root.id, level + 1)}
                 </React.Fragment>
             ));
@@ -238,7 +236,7 @@ function BoardGroup({ groupName, onOpenFile, filterStatus, filterPriority, sortK
 
         return children.map(child => (
             <React.Fragment key={child.id}>
-                <BoardRow item={child} groupColor={groupColor} hasChildren={items.some(i => i.parentId === child.id)} onOpenFile={onOpenFile} />
+                <BoardRow item={child} groupName={groupName} groupColor={groupColor} hasChildren={items.some(i => i.parentId === child.id)} onOpenFile={onOpenFile} />
                 {!child.collapsed && renderHierarchy(child.id, level + 1)}
             </React.Fragment>
         ));
@@ -259,64 +257,53 @@ function BoardGroup({ groupName, onOpenFile, filterStatus, filterPriority, sortK
             {!collapsed && (
                 <div className={styles.tableWrapper}>
                     {/* ... Header ... */}
+
+
+                    // ... (BoardView component)
+
+                    // ... (inside BoardView return)
                     <div className={styles.tableHeaderRow}>
-                        <div className={styles.thName} style={{ borderLeft: `6px solid ${groupColor}` }}>태스크</div>
+                        <div className={styles.thName} style={{ borderLeft: `6px solid ${groupColor}` }}>작업목록(Task)</div>
                         <div className={styles.thOwner}>소유자</div>
                         <div className={styles.thStatus}>상태 <Info size={12} /></div>
                         <div className={styles.thDate}>마감일 <Info size={12} /></div>
                         <div className={styles.thPriority}>우선순위</div>
                         <div className={styles.thMemo}>메모</div>
                         <div className={styles.thBudget}>예산</div>
-                        <div className={styles.thFiles}>파일<Plus size={12} style={{ marginLeft: 4, cursor: 'pointer', opacity: 0.5 }} /></div>
+                        <div className={styles.thFiles}>파일<Paperclip size={12} style={{ marginLeft: 4, cursor: 'pointer', opacity: 0.5 }} /></div>
                         <div className={styles.thTimeline}>타임라인</div>
-                        <div className={styles.thLastUpdate}>지난 업데이트</div>
+                        <div className={styles.thLastUpdate}>완료</div>
+                        <div className={styles.menuColumn}></div> {/* Empty header for menu */}
                     </div>
 
                     {/* Hierarchy Rows or Flat List */}
                     {isFilteredOrSorted ? (
                         items.map(item => (
-                            <BoardRow key={item.id} item={item} groupColor={groupColor} hasChildren={false} onOpenFile={onOpenFile} />
+                            <BoardRow key={item.id} item={item} groupName={groupName} groupColor={groupColor} hasChildren={false} onOpenFile={onOpenFile} />
                         ))
                     ) : (
                         renderHierarchy(null, 1)
                     )}
 
-                    {/* Input Row */}
-                    {!isFilteredOrSorted && (
-                        <div className={styles.addRowContainer}>
-                            <div className={styles.addRowInputWrapper} style={{ borderLeft: `6px solid ${groupColor}40` }}>
-                                <input
-                                    className={styles.addRowInput}
-                                    placeholder="+ 태스크 추가"
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            addRnRItem(null, 1, groupName);
-                                            (e.target as HTMLInputElement).value = '';
-                                        }
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    )}
+                    {/* ... (Input Row - keep mostly same but remove menu column in footer if needed or add empty div) */}
 
                     {/* Footer */}
                     <div className={styles.groupFooter}>
                         {/* ... */}
                         <div className={styles.thName}></div>
                         <div className={styles.thOwner}></div>
-                        <div className={styles.thStatus}>
-                            {/* Summary bars */}
-                        </div>
+                        <div className={styles.thStatus}></div>
                         <div className={styles.thDate}></div>
                         <div className={styles.thPriority}></div>
                         <div className={styles.thMemo}></div>
                         <div className={styles.thBudget}>
-                            <span className={styles.sumText}>${items.reduce((acc, cur) => acc + (cur.budget || 0), 0).toLocaleString()}</span>
+                            <span className={styles.sumText}>{items.reduce((acc, cur) => acc + (cur.budget || 0), 0).toLocaleString()}원</span>
                             <span className={styles.sumLabel}>합계</span>
                         </div>
                         <div className={styles.thFiles}></div>
                         <div className={styles.thTimeline}></div>
                         <div className={styles.thLastUpdate}></div>
+                        <div></div> {/* Menu col */}
                     </div>
                 </div>
             )}
@@ -324,10 +311,31 @@ function BoardGroup({ groupName, onOpenFile, filterStatus, filterPriority, sortK
     );
 }
 
-function BoardRow({ item, groupColor, hasChildren, onOpenFile }: { item: RnRItem, groupColor: string, hasChildren: boolean, onOpenFile: (item: RnRItem) => void }) {
-    const { updateRnRItem, addRnRItem, toggleCollapse, deleteRnRItem } = useProject(); // Added deleteRnRItem
+function BoardRow({ item, groupName, groupColor, hasChildren, onOpenFile }: { item: RnRItem, groupName: string, groupColor: string, hasChildren: boolean, onOpenFile: (item: RnRItem) => void }) {
+    const { updateRnRItem, addRnRItem, toggleCollapse, deleteRnRItem } = useProject();
 
-    // ... color helpers ...
+    // Local state for inputs to prevent focus loss
+    const [localName, setLocalName] = useState(item.name);
+    const [localMemo, setLocalMemo] = useState(item.memo);
+    const [localBudget, setLocalBudget] = useState(item.budget?.toString() || '');
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    // Sync local state when item updates from outside (e.g. after save)
+    // Note: This might cause cursor jump if rapid updates, but usually safe onBlur.
+    // Ideally only sync if ID changes or significant external update.
+    React.useEffect(() => {
+        setLocalName(item.name);
+    }, [item.name]);
+
+    React.useEffect(() => {
+        setLocalMemo(item.memo);
+    }, [item.memo]);
+
+    React.useEffect(() => {
+        setLocalBudget(item.budget?.toString() || '');
+    }, [item.budget]);
+
+    // ... color helpers ... (keep existing)
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'Done': return '#00c875'; // Green
@@ -359,22 +367,24 @@ function BoardRow({ item, groupColor, hasChildren, onOpenFile }: { item: RnRItem
         top: '-10px'
     } : {};
 
+    const handleCompletionToggle = () => {
+        if (groupName === '완료됨') {
+            // Cancel Completion: Move to '할 일', Status 'Working on it'
+            updateRnRItem(item.id, { group: '할 일', status: 'Working on it' });
+        } else {
+            // Complete: Move to '완료됨', Status 'Done', set Priority to 'Low'? (Optional)
+            updateRnRItem(item.id, { group: '완료됨', status: 'Done' });
+        }
+    };
+
     return (
         <div className={styles.row}>
+            {/* Name Column */}
             <div className={styles.cellName} style={{ borderLeft: `6px solid ${borderLeftColor}`, position: 'relative' }}>
                 {item.level > 1 && <div style={connectorStyle}></div>}
 
                 <div style={{ marginLeft: `${item.level > 1 ? paddingLeft : 0}px`, display: 'flex', alignItems: 'center', width: '100%', gap: '4px' }}>
-                    {/* Delete Icon (Trash2) - Always visible or hover */}
-                    <button
-                        className={styles.iconBtn}
-                        onClick={() => deleteRnRItem(item.id)}
-                        style={{ color: '#e2445c', padding: 2 }}
-                        title="삭제"
-                    >
-                        <Trash2 size={12} />
-                    </button>
-
+                    {/* Collapser */}
                     {(item.level < 3) && (
                         <button
                             className={styles.rowActionBtn}
@@ -387,8 +397,11 @@ function BoardRow({ item, groupColor, hasChildren, onOpenFile }: { item: RnRItem
 
                     <input
                         className={styles.nameInput}
-                        value={item.name}
-                        onChange={(e) => updateRnRItem(item.id, { name: e.target.value })}
+                        value={localName}
+                        onChange={(e) => setLocalName(e.target.value)}
+                        onBlur={() => {
+                            if (localName !== item.name) updateRnRItem(item.id, { name: localName });
+                        }}
                         style={{ fontWeight: item.level === 1 ? 500 : 400 }}
                     />
                     {item.level < 3 && (
@@ -401,12 +414,15 @@ function BoardRow({ item, groupColor, hasChildren, onOpenFile }: { item: RnRItem
                     )}
                 </div>
             </div>
-            {/* ... other cells (Owner, Status, etc) ... */}
+
+            {/* Owner */}
             <div className={styles.cellOwner}>
                 <div className={styles.avatar} title={item.assignee}>
                     {item.assignee ? item.assignee.charAt(0) : <User size={14} />}
                 </div>
             </div>
+
+            {/* Status */}
             <div
                 className={styles.cellStatus}
                 style={{ backgroundColor: getStatusColor(item.status) }}
@@ -417,9 +433,13 @@ function BoardRow({ item, groupColor, hasChildren, onOpenFile }: { item: RnRItem
             >
                 {item.status === 'Empty' ? '' : item.status}
             </div>
+
+            {/* End Date */}
             <div className={styles.cellDate}>
                 {item.endDate.substring(5)}
             </div>
+
+            {/* Priority */}
             <div
                 className={styles.cellPriority}
                 style={{ backgroundColor: getPriorityColor(item.priority) }}
@@ -430,23 +450,39 @@ function BoardRow({ item, groupColor, hasChildren, onOpenFile }: { item: RnRItem
             >
                 {item.priority === 'Empty' ? '' : item.priority}
             </div>
+
+            {/* Memo */}
             <div className={styles.cellMemo}>
                 <input
                     className={styles.memoInput}
-                    value={item.memo}
-                    onChange={(e) => updateRnRItem(item.id, { memo: e.target.value })}
+                    value={localMemo}
+                    onChange={(e) => setLocalMemo(e.target.value)}
+                    onBlur={() => {
+                        if (localMemo !== item.memo) updateRnRItem(item.id, { memo: localMemo });
+                    }}
                     placeholder="메모..."
                 />
             </div>
+
+            {/* Budget */}
             <div className={styles.cellBudget}>
-                <input
-                    type="number"
-                    className={styles.budgetInput}
-                    value={item.budget || ''}
-                    onChange={(e) => updateRnRItem(item.id, { budget: Number(e.target.value) })}
-                    placeholder="$0"
-                />
+                <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                    <input
+                        type="number"
+                        className={styles.budgetInput}
+                        value={localBudget}
+                        onChange={(e) => setLocalBudget(e.target.value)}
+                        onBlur={() => {
+                            const val = Number(localBudget);
+                            if (val !== item.budget) updateRnRItem(item.id, { budget: val });
+                        }}
+                        placeholder="0"
+                    />
+                    <span style={{ fontSize: '12px', color: '#666', marginLeft: 2 }}>원</span>
+                </div>
             </div>
+
+            {/* Files */}
             <div
                 className={styles.cellFiles}
                 onClick={() => onOpenFile(item)}
@@ -460,13 +496,70 @@ function BoardRow({ item, groupColor, hasChildren, onOpenFile }: { item: RnRItem
                     <Plus size={14} color="#d0d4e4" className="plus-icon" />
                 )}
             </div>
+
+            {/* Timeline (Editable) */}
             <div className={styles.cellTimeline}>
-                <div className={styles.timelineBar} style={{ background: getStatusColor(item.status) }}>
-                    <span className={styles.timelineDate}>{item.startDate.substring(5)} - {item.endDate.substring(5)}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', width: '100%', justifyContent: 'center' }}>
+                    <input
+                        type="date"
+                        className={styles.dateInput}
+                        value={item.startDate}
+                        onChange={(e) => updateRnRItem(item.id, { startDate: e.target.value })}
+                        style={{ width: '85px', fontSize: '10px' }}
+                    />
+                    <span style={{ color: '#ccc' }}>-</span>
+                    <input
+                        type="date"
+                        className={styles.dateInput}
+                        value={item.endDate}
+                        onChange={(e) => updateRnRItem(item.id, { endDate: e.target.value })}
+                        style={{ width: '85px', fontSize: '10px' }}
+                    />
                 </div>
             </div>
+
+            {/* Completion Toggle (Last Update -> Complete) */}
             <div className={styles.cellLastUpdate}>
-                <CircleUser size={24} color="#ccc" />
+                {groupName === '완료됨' ? (
+                    <button className={styles.cancelCompletionBtn} onClick={handleCompletionToggle} title="완료 취소">
+                        <RefreshCw size={12} /> 완료 취소
+                    </button>
+                ) : (
+                    <div
+                        className={`${styles.checkBtn} ${item.status === 'Done' ? styles.checked : ''}`}
+                        onClick={handleCompletionToggle}
+                        title="완료 처리"
+                    >
+                        <Check size={14} />
+                    </div>
+                )}
+            </div>
+
+            {/* Menu Column */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+                <div style={{ position: 'relative' }}>
+                    <button className={styles.menuBtn} onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                        <MoreHorizontal size={16} />
+                    </button>
+                    {isMenuOpen && (
+                        <div style={{
+                            position: 'absolute', top: '100%', right: 0, background: 'white',
+                            border: '1px solid #e6e9ef', borderRadius: '6px', padding: '4px',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 100, minWidth: '80px'
+                        }}>
+                            <button
+                                onClick={() => { setIsMenuOpen(false); deleteRnRItem(item.id); }}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px',
+                                    width: '100%', background: 'white', border: 'none', color: '#e2445c',
+                                    fontSize: '13px', cursor: 'pointer', borderRadius: '4px'
+                                }}
+                            >
+                                <Trash2 size={14} /> 삭제
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

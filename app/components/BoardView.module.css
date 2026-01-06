@@ -135,8 +135,8 @@
 .row,
 .groupFooter {
     display: grid;
-    /* Define Columns: Name | Owner | Status | Date | Priority | Memo | Budget | Files | Timeline | Update */
-    grid-template-columns: minmax(300px, 2fr) 60px 120px 100px 120px 140px 100px 60px 180px 120px;
+    /* Define Columns: Name | Owner | Status | Date | Priority | Memo | Budget | Files | Timeline | Update | Menu */
+    grid-template-columns: minmax(300px, 2fr) 60px 120px 100px 120px 140px 100px 50px 200px 100px 40px;
     border-bottom: 1px solid #e6e9ef;
 }
 
@@ -339,4 +339,78 @@
 
 .cellName:hover .addSubBtn {
     opacity: 1;
+}
+
+/* Completion Check Button */
+.checkBtn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: white;
+}
+
+.checkBtn:hover {
+    border-color: #aaa;
+}
+
+.checkBtn.checked {
+    background: #00c875;
+    border-color: #00c875;
+}
+
+.cancelCompletionBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: #ffe4e8;
+    color: #e2445c;
+    border: none;
+    font-size: 11px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.menuBtn {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #676879;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.menuBtn:hover {
+    background: #e6e9ef;
+    color: #323338;
+}
+
+/* Date Range Inputs */
+.dateInput {
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 11px;
+    padding: 2px;
+    background: transparent;
+    width: 90px;
+    text-align: center;
+    color: #333;
+}
+
+.dateInput:hover,
+.dateInput:focus {
+    background: white;
+    border-color: #e6e9ef;
 }
