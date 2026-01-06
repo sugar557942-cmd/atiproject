@@ -151,8 +151,8 @@ export async function POST(request: Request) {
         };
 
         return NextResponse.json(formattedProject);
-    } catch (e) {
-        console.error(e);
-        return NextResponse.json({ error: 'Failed to create project' }, { status: 500 });
+    } catch (e: any) {
+        console.error('[Create Project Error]', e);
+        return NextResponse.json({ error: `Failed to create project: ${e.message}` }, { status: 500 });
     }
 }
