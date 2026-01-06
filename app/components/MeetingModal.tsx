@@ -38,38 +38,60 @@ export function MeetingModal({ meeting, onClose, onSave }: MeetingModalProps) {
         if (!file) return;
 
         setIsAnalyzing(true);
-        const data = new FormData();
-        data.append('file', file);
 
         try {
-            const response = await fetch('/api/analyze-meeting', {
+            // 1. Get Signed URL
+            const signedUrlRes = await fetch('/api/uploads/signed-url', {
                 method: 'POST',
-                body: data
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fileName: file.name,
+                    contentType: file.type
+                })
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Upload failed (${response.status}): ${errorText.substring(0, 100)}`);
-            }
+            if (!signedUrlRes.ok) throw new Error('Failed to get upload URL');
+            const { signedUrl, objectKey, fileUrl } = await signedUrlRes.json();
 
-            const result = await response.json();
+            // 2. Upload to GCS
+            const uploadRes = await fetch(signedUrl, {
+                method: 'PUT',
+                body: file,
+                headers: {
+                    'Content-Type': file.type
+                }
+            });
 
-            if (result.success) {
-                setFormData(prev => {
-                    const newDecisions = prev.decisions + '\n' + result.summary;
-                    if (editorRef.current) {
-                        editorRef.current.innerHTML = newDecisions;
-                    }
-                    return {
-                        ...prev,
-                        transcript: result.transcript,
-                        decisions: newDecisions,
-                        actionItems: prev.actionItems + '\n' + result.actionItems
-                    };
-                });
-            } else {
-                alert('Analysis failed: ' + result.error);
-            }
+            if (!uploadRes.ok) throw new Error('Failed to upload to storage');
+
+            // 3. Update Meeting with Audio URL (and ID if not expecting separate return)
+            // But wait, the meeting might already exist or not. 
+            // In this modal, 'meeting' exists. We should save the audioUrl to it first.
+
+            // Note: onSave usually handles local + API save. We need to persist audioUrl.
+            // Let's assume onSave propagates to API. But to trigger process, we probably need to ensure it's saved.
+            // Let's do a direct update or rely on onSave.
+            // Better: Update directly to API then trigger process to ensure consistency.
+
+            // Save audioUrl to DB
+            await fetch(`/api/meetings/${meeting.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ audioUrl: objectKey }) // Storing objectKey as audioUrl or fileUrl
+            });
+
+            // 4. Trigger Async Processing
+            const processRes = await fetch(`/api/meetings/${meeting.id}/process`, {
+                method: 'POST'
+            });
+
+            if (!processRes.ok) throw new Error('Failed to start processing');
+
+            alert('음성 파일이 업로드되었습니다. 분석이 백그라운드에서 진행됩니다. 잠시 후 새로고침해주세요.');
+            onClose(); // Close modal or stay open? User asked for async.
+            // Maybe just update status locally
+            // setFormData ...
+
         } catch (error: any) {
             console.error(error);
             alert(`Error uploading file: ${error.message}`);

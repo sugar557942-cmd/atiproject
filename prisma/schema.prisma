@@ -105,5 +105,9 @@ model Meeting {
   actionItems String?
   transcript  String?
 
+  summary     String?
+  audioUrl    String?
+  processingStatus String @default("IDLE") // 'IDLE', 'PROCESSING', 'COMPLETED', 'FAILED'
+
   project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }

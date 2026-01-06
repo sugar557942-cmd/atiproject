@@ -48,7 +48,7 @@ export async function GET(_request: Request) {
             projects = await prisma.project.findMany({
                 include: {
                     members: { include: { user: true } },
-                    tasks: true,
+                    tasks: { orderBy: { lastUpdated: 'asc' } },
                     meetings: true,
                     groups: { orderBy: { order: 'asc' } }
                 }
@@ -63,7 +63,7 @@ export async function GET(_request: Request) {
                 },
                 include: {
                     members: { include: { user: true } },
-                    tasks: true,
+                    tasks: { orderBy: { lastUpdated: 'asc' } },
                     meetings: true,
                     groups: { orderBy: { order: 'asc' } }
                 }
