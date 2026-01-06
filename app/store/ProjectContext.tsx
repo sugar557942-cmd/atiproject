@@ -223,10 +223,13 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
                 const newProject = await res.json();
                 await refreshProjects();
                 setActiveProjectId(newProject.id);
+            } else {
+                const err = await res.json();
+                alert(`프로젝트 생성 실패: ${err.error || '알 수 없는 오류'}`);
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            alert('프로젝트 생성 실패');
+            alert(`프로젝트 생성 실패: ${e.message}`);
         }
     };
 

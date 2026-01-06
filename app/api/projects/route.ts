@@ -99,8 +99,15 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { name, department, startDate, endDate, category } = body;
 
+        console.log(`[API] Create Project Request: ${JSON.stringify(body)}`);
+        console.log(`[API] User ID from Token (username): ${user.id}`);
+
         const dbUserId = await getDbUserIdByUsername(user.id);
-        if (!dbUserId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        if (!dbUserId) {
+            console.error(`[API] DB User ID not found for username: ${user.id}`);
+            return NextResponse.json({ error: 'Unauthorized: User not found in DB' }, { status: 401 });
+        }
+        console.log(`[API] Resolved DB UUID: ${dbUserId}`);
 
         const project = await prisma.project.create({
             data: {
