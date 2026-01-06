@@ -151,7 +151,7 @@ export function BoardView() {
                 ))}
 
                 <div className={styles.addGroupSection}>
-                    <button className={styles.btnAddGroup} onClick={() => addGroup('New Group')}>+ 새 그룹 추가하기</button>
+
                 </div>
             </div>
 
@@ -258,20 +258,15 @@ function BoardGroup({ groupName, onOpenFile, filterStatus, filterPriority, sortK
                 <div className={styles.tableWrapper}>
                     {/* ... Header ... */}
 
-
-                    // ... (BoardView component)
-
-                    // ... (inside BoardView return)
                     <div className={styles.tableHeaderRow}>
                         <div className={styles.thName} style={{ borderLeft: `6px solid ${groupColor}` }}>작업목록(Task)</div>
-                        <div className={styles.thOwner}>소유자</div>
+                        <div className={styles.thOwner}>책임자</div>
                         <div className={styles.thStatus}>상태 <Info size={12} /></div>
                         <div className={styles.thDate}>마감일 <Info size={12} /></div>
                         <div className={styles.thPriority}>우선순위</div>
                         <div className={styles.thMemo}>메모</div>
                         <div className={styles.thBudget}>예산</div>
                         <div className={styles.thFiles}>파일<Paperclip size={12} style={{ marginLeft: 4, cursor: 'pointer', opacity: 0.5 }} /></div>
-                        <div className={styles.thTimeline}>타임라인</div>
                         <div className={styles.thLastUpdate}>완료</div>
                         <div className={styles.menuColumn}></div> {/* Empty header for menu */}
                     </div>
@@ -301,7 +296,6 @@ function BoardGroup({ groupName, onOpenFile, filterStatus, filterPriority, sortK
                             <span className={styles.sumLabel}>합계</span>
                         </div>
                         <div className={styles.thFiles}></div>
-                        <div className={styles.thTimeline}></div>
                         <div className={styles.thLastUpdate}></div>
                         <div></div> {/* Menu col */}
                     </div>
@@ -497,26 +491,6 @@ function BoardRow({ item, groupName, groupColor, hasChildren, onOpenFile }: { it
                 )}
             </div>
 
-            {/* Timeline (Editable) */}
-            <div className={styles.cellTimeline}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', width: '100%', justifyContent: 'center' }}>
-                    <input
-                        type="date"
-                        className={styles.dateInput}
-                        value={item.startDate}
-                        onChange={(e) => updateRnRItem(item.id, { startDate: e.target.value })}
-                        style={{ width: '85px', fontSize: '10px' }}
-                    />
-                    <span style={{ color: '#ccc' }}>-</span>
-                    <input
-                        type="date"
-                        className={styles.dateInput}
-                        value={item.endDate}
-                        onChange={(e) => updateRnRItem(item.id, { endDate: e.target.value })}
-                        style={{ width: '85px', fontSize: '10px' }}
-                    />
-                </div>
-            </div>
 
             {/* Completion Toggle (Last Update -> Complete) */}
             <div className={styles.cellLastUpdate}>

@@ -30,11 +30,18 @@ interface PerformanceDetailModalProps {
     year: number;
     initialData?: PerformanceData;
     onSave: (data: PerformanceData) => void;
+    initialTab?: 'us' | 'jp';
 }
 
-export function PerformanceDetailModal({ isOpen, onClose, year, initialData, onSave }: PerformanceDetailModalProps) {
-    const [activeTab, setActiveTab] = useState<'us' | 'jp'>('jp'); // Default to JP as per image
+export function PerformanceDetailModal({ isOpen, onClose, year, initialData, onSave, initialTab = 'jp' }: PerformanceDetailModalProps) {
+    const [activeTab, setActiveTab] = useState<'us' | 'jp'>('jp');
     const [data, setData] = useState<PerformanceData>({ us: [], jp: [] });
+
+    useEffect(() => {
+        if (isOpen) {
+            setActiveTab(initialTab);
+        }
+    }, [isOpen, initialTab]);
 
     useEffect(() => {
         if (isOpen) {

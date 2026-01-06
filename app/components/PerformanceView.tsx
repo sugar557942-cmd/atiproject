@@ -17,6 +17,7 @@ export function PerformanceView() {
 
     const [isModalOpen, setIsModalOpen] = React.useState(false);
     const [selectedDetailYear, setSelectedDetailYear] = React.useState<number>(currentYear);
+    const [modalInitialTab, setModalInitialTab] = React.useState<'us' | 'jp'>('jp');
 
     // Mock Data Store - in a real app this would come from an API or Context
     const [performanceStore, setPerformanceStore] = React.useState<Record<number, PerformanceData>>({
@@ -168,12 +169,13 @@ export function PerformanceView() {
     }, [performanceStore, years, analysisTab]);
 
     // Chart Interaction Handlers
-    const handleChartClick = (data: any) => {
+    const handleChartClick = (data: any, country: 'us' | 'jp' = 'jp') => {
         if (data && data.activeLabel) {
             const yearStr = data.activeLabel; // "2018년"
             const year = parseInt(yearStr.replace('년', ''));
             if (!isNaN(year)) {
                 setSelectedDetailYear(year);
+                setModalInitialTab(country);
                 setIsModalOpen(true);
             }
         }
@@ -197,6 +199,7 @@ export function PerformanceView() {
                 setSelectedDetailYear(targetYear);
             }
             // Open modal (defaults to current selected or the found one)
+            setModalInitialTab(analysisTab);
             setIsModalOpen(true);
         }
     };
@@ -263,7 +266,7 @@ export function PerformanceView() {
                             <AreaChart
                                 data={yearlyTrendData}
                                 margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                                onClick={handleChartClick}
+                                onClick={(data) => handleChartClick(data, 'jp')}
                                 style={{ cursor: 'pointer' }}
                             >
                                 <defs>
@@ -295,7 +298,7 @@ export function PerformanceView() {
                             <AreaChart
                                 data={yearlyTrendData}
                                 margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                                onClick={handleChartClick}
+                                onClick={(data) => handleChartClick(data, 'us')}
                                 style={{ cursor: 'pointer' }}
                             >
                                 <defs>
@@ -397,6 +400,7 @@ export function PerformanceView() {
                 onClose={() => setIsModalOpen(false)}
                 year={selectedDetailYear}
                 initialData={performanceStore[selectedDetailYear]}
+                initialTab={modalInitialTab}
                 onSave={handleSaveData}
             />
 
