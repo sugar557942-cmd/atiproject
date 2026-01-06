@@ -12,32 +12,10 @@ export function LoginView() {
     const [error, setError] = useState('');
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
-    // Auto-submit prevention: Ignore submits within first 1000ms of mount
-    const isReady = React.useRef(false);
 
-    React.useEffect(() => {
-        const timer = setTimeout(() => {
-            isReady.current = true;
-        }, 1000);
-        return () => clearTimeout(timer);
-    }, []);
 
     // 오직 onSubmit에서만 실행
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Prevent browser auto-submit on load
-        if (!isReady.current) {
-            console.log('[LoginView] Ignored auto-submit on load (timer)');
-            return;
-        }
-
-        // Check if event is trusted (user interaction)
-        // Note: Chrome autofill might simulate this, but combined with timer it's safer
-        if (!e.nativeEvent.isTrusted) {
-            console.log('[LoginView] Ignored untrusted submit event');
-            return;
-        }
+    const handleSubmit = async () => {
 
         setError('');
 
@@ -76,7 +54,7 @@ export function LoginView() {
             }}>
                 <h1 style={{ marginBottom: '24px', textAlign: 'center', color: '#323338' }}>로그인</h1>
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <div>
                         <label htmlFor="login-id" style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#676879' }}>아이디</label>
                         <div style={{ position: 'relative' }}>
@@ -126,7 +104,8 @@ export function LoginView() {
                     {error && <div style={{ color: '#e2445c', fontSize: '13px', textAlign: 'center' }}>{error}</div>}
 
                     <button
-                        type="submit"
+                        type="button"
+                        onClick={handleSubmit}
                         style={{
                             background: '#0073ea',
                             color: 'white',
@@ -159,7 +138,7 @@ export function LoginView() {
                     >
                         A.T.I. 멤버 가입
                     </button>
-                </form>
+                </div>
             </div>
 
             <RegisterModal isOpen={isRegisterOpen} onClose={() => setIsRegisterOpen(false)} />
