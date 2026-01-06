@@ -15,6 +15,7 @@ export function ProjectList({ isOpen, onClose }: ProjectListProps) {
     const { projects, activeProjectId, switchProject, createProject, deleteProject, setViewMode, viewMode } = useProject();
     const { isAdmin, departments } = useAuth(); // Added departments
     const [isCreating, setIsCreating] = useState(false);
+    const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'DONE'>('ALL'); // Added Filter State
 
     // Form State
     const [newName, setNewName] = useState('');
@@ -221,33 +222,85 @@ export function ProjectList({ isOpen, onClose }: ProjectListProps) {
 
                 <div className={styles.divider} style={{ height: 1, background: '#e6e9ef', margin: '0 8px 16px 8px' }}></div>
 
-                {projects.map(p => (
-                    <div
-                        key={p.id}
-                        className={`${styles.item} ${viewMode === 'project' && p.id === activeProjectId ? styles.active : ''}`}
-                        onClick={() => handleNavigation(() => {
-                            switchProject(p.id);
-                            setViewMode('project');
-                        })}
-                    >
-                        <div className={styles.itemContent}>
-                            <Folder size={16} className={styles.icon} />
-                            <div className={styles.info}>
-                                <div className={styles.name}>{p.name}</div>
-                                <div className={styles.dept}>{p.department}</div>
-                            </div>
+                {/* Status Filter Buttons (Admin Only or All? User said for Admin screen) */}
+                <div style={{ display: 'flex', gap: '4px', padding: '0 8px 12px 8px' }}>
+                    {['ALL', 'ACTIVE', 'DONE'].map(status => (
+                        <button
+                            key={status}
+                            onClick={() => setStatusFilter(status as any)}
+                            style={{
+                                flex: 1,
+                                padding: '4px 0',
+                                borderRadius: '4px',
+                                border: '1px solid',
+                                borderColor: statusFilter === status ? '#0073ea' : '#e6e9ef',
+                                background: statusFilter === status ? '#eff6ff' : 'white',
+                                color: statusFilter === status ? '#0073ea' : '#676879',
+                                fontSize: '11px',
+                                cursor: 'pointer',
+                                fontWeight: statusFilter === status ? 600 : 400
+                            }}
+                        >
+                            {status === 'ALL' ? '전체' : status === 'ACTIVE' ? '진행중' : '완료'}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Grouped Project List */}
+                {Object.entries(
+                    projects
+                        .filter(p => {
+                            if (statusFilter === 'ALL') return true;
+                            if (statusFilter === 'ACTIVE') return p.status === 'Planning' || p.status === 'In Progress';
+                            if (statusFilter === 'DONE') return p.status === 'Done';
+                            return true;
+                        })
+                        .reduce((acc, project) => {
+                            const dept = project.department || 'Other';
+                            if (!acc[dept]) acc[dept] = [];
+                            acc[dept].push(project);
+                            return acc;
+                        }, {} as Record<string, typeof projects>)
+                ).map(([dept, deptProjects]) => (
+                    <div key={dept} style={{ marginBottom: '12px' }}>
+                        <div style={{
+                            padding: '4px 12px',
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            color: '#9ba0b1',
+                            textTransform: 'uppercase'
+                        }}>
+                            {dept}
                         </div>
-                        {projects.length > 1 && (
-                            <button
-                                className={styles.deleteBtn}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (confirm('정말 삭제하시겠습니까?')) deleteProject(p.id);
-                                }}
+                        {deptProjects.map(p => (
+                            <div
+                                key={p.id}
+                                className={`${styles.item} ${viewMode === 'project' && p.id === activeProjectId ? styles.active : ''}`}
+                                onClick={() => handleNavigation(() => {
+                                    switchProject(p.id);
+                                    setViewMode('project');
+                                })}
                             >
-                                <Trash2 size={14} />
-                            </button>
-                        )}
+                                <div className={styles.itemContent}>
+                                    <Folder size={16} className={styles.icon} />
+                                    <div className={styles.info}>
+                                        <div className={styles.name}>{p.name}</div>
+                                        {/* Dept is in header now, maybe show status or date? Keeping simple for now, or remove dept from item */}
+                                    </div>
+                                </div>
+                                {projects.length > 1 && (
+                                    <button
+                                        className={styles.deleteBtn}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (confirm('정말 삭제하시겠습니까?')) deleteProject(p.id);
+                                        }}
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
                     </div>
                 ))}
             </div>

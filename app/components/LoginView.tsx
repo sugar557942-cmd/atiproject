@@ -122,11 +122,7 @@ export function LoginView() {
                         A.T.I. 멤버 가입
                     </button>
 
-                    <div style={{ marginTop: '16px', fontSize: '12px', color: '#676879', textAlign: 'center', lineHeight: '1.6', background: '#f5f6f8', padding: '12px', borderRadius: '8px' }}>
-                        <strong>테스트 계정 정보</strong><br />
-                        <span style={{ color: '#0073ea' }}>kim / 1234</span> (관리자)<br />
-                        <span style={{ color: '#323338' }}>lee / 1234</span> (일반 사원)
-                    </div>
+
                 </form>
             </div>
 
