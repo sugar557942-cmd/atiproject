@@ -12,9 +12,33 @@ export function LoginView() {
     const [error, setError] = useState('');
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
+    // Auto-submit prevention: Ignore submits within first 1000ms of mount
+    const isReady = React.useRef(false);
+
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
+            isReady.current = true;
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, []);
+
     // 오직 onSubmit에서만 실행
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Prevent browser auto-submit on load
+        if (!isReady.current) {
+            console.log('[LoginView] Ignored auto-submit on load (timer)');
+            return;
+        }
+
+        // Check if event is trusted (user interaction)
+        // Note: Chrome autofill might simulate this, but combined with timer it's safer
+        if (!e.nativeEvent.isTrusted) {
+            console.log('[LoginView] Ignored untrusted submit event');
+            return;
+        }
+
         setError('');
 
         if (!id || !pw) {

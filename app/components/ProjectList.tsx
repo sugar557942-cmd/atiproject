@@ -282,10 +282,18 @@ export function ProjectList({ isOpen, onClose }: ProjectListProps) {
                                 })}
                             >
                                 <div className={styles.itemContent}>
-                                    <Folder size={16} className={styles.icon} />
+                                    {/* Dynamic Status Icon */}
+                                    <div style={{
+                                        width: 8, height: 8, borderRadius: '50%', marginRight: 12,
+                                        backgroundColor: (() => {
+                                            const today = new Date().toISOString().split('T')[0];
+                                            if (p.status === 'Done') return '#333333'; // Black for Done
+                                            if (p.startDate > today) return '#c3c6d4'; // Gray for Future
+                                            return '#2ea043'; // Green for In Progress (or generic active)
+                                        })()
+                                    }}></div>
                                     <div className={styles.info}>
                                         <div className={styles.name}>{p.name}</div>
-                                        {/* Dept is in header now, maybe show status or date? Keeping simple for now, or remove dept from item */}
                                     </div>
                                 </div>
                                 {projects.length > 1 && (
