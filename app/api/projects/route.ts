@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
 import { verifyJWT } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 type JwtUser = {
     id: string; // username
     role?: string;

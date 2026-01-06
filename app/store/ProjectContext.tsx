@@ -159,7 +159,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     // Fetch Projects
     const refreshProjects = async () => {
         try {
-            const res = await fetch('/api/projects');
+            const res = await fetch('/api/projects', { cache: 'no-store' });
             if (res.ok) {
                 const data = await res.json();
                 // Map Backend Groups Object to String Array if needed
