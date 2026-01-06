@@ -1,14 +1,37 @@
-
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'; // Assuming lib/prisma exists, otherwise will check imports
+import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
 import { verifyJWT } from '@/lib/auth';
 
-// Helper to get user
-async function getUser() {
+type JwtUser = {
+    id: string; // username
+    role?: string;
+    name?: string;
+};
+
+async function getUser(): Promise<JwtUser | null> {
     const token = cookies().get('ati_token')?.value;
     if (!token) return null;
-    return verifyJWT(token);
+
+    const payload = await verifyJWT(token);
+
+    if (
+        payload &&
+        typeof payload === 'object' &&
+        typeof (payload as any).id === 'string'
+    ) {
+        return payload as JwtUser;
+    }
+
+    return null;
+}
+
+async function getDbUserIdByUsername(username: string): Promise<string | null> {
+    const dbUser = await prisma.user.findUnique({
+        where: { username },
+        select: { id: true }
+    });
+    return dbUser?.id ?? null;
 }
 
 // GET: List Projects (filtered)
@@ -18,6 +41,7 @@ export async function GET(request: Request) {
 
     try {
         let projects;
+
         if (user.role === 'admin') {
             projects = await prisma.project.findMany({
                 include: {
@@ -28,9 +52,12 @@ export async function GET(request: Request) {
                 }
             });
         } else {
+            const dbUserId = await getDbUserIdByUsername(user.id);
+            if (!dbUserId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
             projects = await prisma.project.findMany({
                 where: {
-                    members: { some: { userId: user.id } }
+                    members: { some: { userId: dbUserId } }
                 },
                 include: {
                     members: { include: { user: true } },
@@ -41,83 +68,4 @@ export async function GET(request: Request) {
             });
         }
 
-        // Transform Members to match frontend structure if needed
-        // Frontend expects: members: { id, name, role... }
-        // DB returns: members: { userId, user: { name... }, projectRole }
-        const formattedProjects = projects.map(p => ({
-            ...p,
-            members: p.members.map(pm => ({
-                id: pm.user.id,
-                name: pm.user.name,
-                role: pm.user.role || 'Member', // User global role
-                projectRole: pm.projectRole,
-                avatar: pm.user.avatar || '#ccc',
-                email: pm.user.email
-            })),
-            rnrItems: p.tasks.map(t => ({
-                ...t,
-                // Ensure fields match
-            }))
-        }));
-
-        return NextResponse.json(formattedProjects);
-    } catch (e) {
-        console.error(e);
-        return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 });
-    }
-}
-
-// POST: Create Project
-export async function POST(request: Request) {
-    const user = await getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    try {
-        const body = await request.json();
-        const { name, department, startDate, endDate, category } = body;
-
-        const project = await prisma.project.create({
-            data: {
-                name,
-                department,
-                status: 'Planning',
-                startDate,
-                endDate,
-                category,
-                groups: {
-                    create: [{ name: '할 일', order: 0 }, { name: '완료됨', order: 1 }]
-                },
-                members: {
-                    create: {
-                        userId: user.id,
-                        projectRole: 'manager'
-                    }
-                }
-            },
-            include: {
-                members: { include: { user: true } },
-                groups: true
-            }
-        });
-
-        // Format return
-        const formattedProject = {
-            ...project,
-            members: project.members.map(pm => ({
-                id: pm.user.id,
-                name: pm.user.name,
-                role: pm.user.role,
-                projectRole: pm.projectRole,
-                avatar: pm.user.avatar,
-                email: pm.user.email
-            })),
-            rnrItems: [],
-            meetings: []
-        };
-
-        return NextResponse.json(formattedProject);
-    } catch (e) {
-        console.error(e);
-        return NextResponse.json({ error: 'Failed to create project' }, { status: 500 });
-    }
-}
+        const formattedProjects =
