@@ -5,12 +5,79 @@ import { useAuth } from '../store/AuthContext';
 import { Lock, User } from 'lucide-react';
 import { RegisterModal } from './RegisterModal';
 
-export function LoginView() {
-    const { login } = useAuth();
+interface LoginViewProps {
+    onContinue?: () => void;
+}
+
+export function LoginView({ onContinue }: LoginViewProps) {
+    const { login, user, logout } = useAuth();
     const [id, setId] = useState('');
     const [pw, setPw] = useState('');
     const [error, setError] = useState('');
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+
+    if (user) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+                background: '#f5f6f8'
+            }}>
+                <div style={{
+                    background: 'white',
+                    padding: '40px',
+                    borderRadius: '12px',
+                    boxShadow: '0 8px 30px rgba(0,0,0,0.1)',
+                    width: '100%',
+                    maxWidth: '400px',
+                    textAlign: 'center'
+                }}>
+                    <h1 style={{ marginBottom: '12px', color: '#323338' }}>환영합니다!</h1>
+                    <p style={{ marginBottom: '32px', color: '#676879', fontSize: '15px' }}>
+                        <strong style={{ color: '#0073ea' }}>{user.name}</strong> 님으로 로그인되어 있습니다.
+                    </p>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <button
+                            onClick={onContinue}
+                            style={{
+                                background: '#0073ea',
+                                color: 'white',
+                                border: 'none',
+                                padding: '14px',
+                                borderRadius: '8px',
+                                fontSize: '16px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                width: '100%'
+                            }}
+                        >
+                            계속하기
+                        </button>
+
+                        <button
+                            onClick={logout}
+                            style={{
+                                background: 'white',
+                                color: '#e2445c',
+                                border: '1px solid #ffe5e9',
+                                padding: '14px',
+                                borderRadius: '8px',
+                                fontSize: '16px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                width: '100%'
+                            }}
+                        >
+                            로그아웃
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
 
 

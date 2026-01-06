@@ -18,9 +18,14 @@ function AppContent() {
     const { user } = useAuth();
     const { viewMode } = useProject();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isEntered, setIsEntered] = useState(false);
 
     if (!user) {
         return <LoginView />;
+    }
+
+    if (!isEntered) {
+        return <LoginView onContinue={() => setIsEntered(true)} />;
     }
 
     return (
